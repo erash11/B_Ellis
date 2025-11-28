@@ -1,0 +1,44 @@
+# Generated Reports (can be regenerated)
+*_DEMO.html
+*_DEMO.txt
+*_REAL.html
+*_REAL.txt
+training_report.txt
+
+# Data Files (contain sensitive athlete data)
+# Uncomment these lines to exclude data files from git:
+# *.csv
+# *.xlsx
+# *.xls
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+report_log.txt
+
+# Temporary files
+*.tmp
+*.bak
