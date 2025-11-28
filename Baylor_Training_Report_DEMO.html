@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Plate Training Report - Baylor Football</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            border-bottom: 4px solid #1B5E20;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1B5E20;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .header-info div {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-info strong {
+            color: #1B5E20;
+            min-width: 150px;
+        }
+
+        .summary-box {
+            background: #E3F2FD;
+            border-left: 5px solid #1976D2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .summary-box h2 {
+            color: #1976D2;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .category-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .category-header h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .category-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .category-body {
+            padding: 20px;
+        }
+
+        .recommendations {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .rec-section h4 {
+            color: #1B5E20;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rec-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rec-section li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .rec-section li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #1B5E20;
+            font-weight: bold;
+        }
+
+        .athletes-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .athletes-section h4 {
+            color: #1B5E20;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .athlete-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
+        .athlete-item {
+            padding: 12px 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .athlete-item.critical {
+            background: #FFEBEE;
+            border-left: 4px solid #C62828;
+        }
+
+        .athlete-item.warning {
+            background: #FFF3E0;
+            border-left: 4px solid #EF6C00;
+        }
+
+        .athlete-item.caution {
+            background: #FFFDE7;
+            border-left: 4px solid #F57F17;
+        }
+
+        .emoji {
+            font-size: 18px;
+        }
+
+        .athlete-name {
+            font-weight: 600;
+        }
+
+        .athlete-detail {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .distribution {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .dist-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .interpretation-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .interpretation-box strong {
+            color: #1B5E20;
+        }
+
+        .execution-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .execution-box strong {
+            color: #1565C0;
+        }
+
+        .no-flags {
+            background: #E8F5E9;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .no-flags h3 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+
+        .no-flags ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .no-flags li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-box {
+            background: #FFF9E6;
+            border: 2px solid #FBC02D;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .action-box h3 {
+            color: #F57F17;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .priority-item {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            border-left: 3px solid #FBC02D;
+        }
+
+        .priority-item h4 {
+            color: #E65100;
+            margin-bottom: 10px;
+        }
+
+        .priority-item ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .priority-item li {
+            padding: 5px 0;
+            position: relative;
+        }
+
+        .priority-item li:before {
+            content: "✓";
+            position: absolute;
+            left: -20px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .note {
+            background: #E3F2FD;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>⚡ FORCE PLATE TRAINING REPORT</h1>
+            <div class="header-info">
+                <div><strong>Team:</strong> <span>Baylor Football</span></div>
+                <div><strong>Report Date:</strong> <span>November 28, 2025</span></div>
+                <div><strong>Training Phase:</strong> <span>Fall Training Block</span></div>
+                <div><strong>Data Window:</strong> <span>2025-07-06 to 2025-11-16</span></div>
+                <div><strong>Next Phase:</strong> <span>Winter Preparation Phase</span></div>
+                <div><strong>Total Athletes:</strong> <span>45</span></div>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <h2>📊 EXECUTIVE SUMMARY</h2>
+            <p><strong>7 categories flagged</strong> with <strong>45 total athletes</strong> needing intervention (100% of roster)</p>
+            <p style="margin-top: 10px;">Primary concern: Performance decline detected across multiple categories. Recommend phase-wide adjustments to execution style and rest periods.</p>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 1: MAXIMAL STRENGTH CAPACITY</h3>
+                <p>📉 Trend: IMTP Peak Force and Net Peak Vertical Force declining</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Heavy isometrics with 3-5 second holds</li>
+                            <li>Cluster sets (≥80% 1RM) - 3 reps, 20s rest, repeat 3×</li>
+                            <li>Wave loading (vary intensity within session)</li>
+                            <li>Extend rest periods to 4-5 minutes between sets</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Resisted sprints (50-60% vdec)</li>
+                            <li>Heavy sled pushes</li>
+                            <li>Focus on max force production over speed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 28</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">James Smith</div>
+                                <div class="athlete-detail">#63, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">William Jones</div>
+                                <div class="athlete-detail">#98, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Daniel Martinez</div>
+                                <div class="athlete-detail">#1, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Mark Gonzalez</div>
+                                <div class="athlete-detail">#48, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Steven Anderson</div>
+                                <div class="athlete-detail">#45, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Paul Thomas</div>
+                                <div class="athlete-detail">#5, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Andrew Taylor</div>
+                                <div class="athlete-detail">#23, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kevin Martin</div>
+                                <div class="athlete-detail">#74, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brian Lee</div>
+                                <div class="athlete-detail">#50, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">George Perez</div>
+                                <div class="athlete-detail">#71, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Edward Harris</div>
+                                <div class="athlete-detail">#40, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ryan Ramirez</div>
+                                <div class="athlete-detail">#82, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jacob Lewis</div>
+                                <div class="athlete-detail">#12, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gary Robinson</div>
+                                <div class="athlete-detail">#66, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Nicholas Walker</div>
+                                <div class="athlete-detail">#95, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Eric Young</div>
+                                <div class="athlete-detail">#31, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jonathan Allen</div>
+                                <div class="athlete-detail">#29, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brandon Nguyen</div>
+                                <div class="athlete-detail">#36, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Samuel Flores</div>
+                                <div class="athlete-detail">#73, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gregory Adams</div>
+                                <div class="athlete-detail">#8, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Alexander Nelson</div>
+                                <div class="athlete-detail">#56, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Frank Hall</div>
+                                <div class="athlete-detail">#20, LB - Critical</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>28 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>0 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>0 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Large group showing strength decline. Consider making cluster sets and extended rest a phase emphasis for these athletes. Multiple interventions needed given the number of critical flags.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> Still do your planned exercises (trap bar, safety bar, whatever), but execute them with longer rest, cluster structure, or add isometric holds.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 2: EXPLOSIVE STRENGTH / RFD</h3>
+                <p>📉 Trend: Early-phase RFD (50-200ms) declining</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Contrast/complex training (heavy → explosive superset)</li>
+                            <li>Olympic lift variations (60-70% 1RM)</li>
+                            <li>Accommodating resistance with explosive intent</li>
+                            <li>Example: Trap bar (heavy) → Box jumps (explosive)</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Resisted sprints (10-30% vdec)</li>
+                            <li>Contrast sprints (resisted → unresisted)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 21</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Michael Johnson</div>
+                                <div class="athlete-detail">#41, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">David Brown</div>
+                                <div class="athlete-detail">#19, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">William Jones</div>
+                                <div class="athlete-detail">#98, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Mark Gonzalez</div>
+                                <div class="athlete-detail">#48, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Steven Anderson</div>
+                                <div class="athlete-detail">#45, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Andrew Taylor</div>
+                                <div class="athlete-detail">#23, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kevin Martin</div>
+                                <div class="athlete-detail">#74, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">George Perez</div>
+                                <div class="athlete-detail">#71, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jacob Lewis</div>
+                                <div class="athlete-detail">#12, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gary Robinson</div>
+                                <div class="athlete-detail">#66, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Nicholas Walker</div>
+                                <div class="athlete-detail">#95, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Eric Young</div>
+                                <div class="athlete-detail">#31, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Larry Wright</div>
+                                <div class="athlete-detail">#6, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Justin Scott</div>
+                                <div class="athlete-detail">#46, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brandon Nguyen</div>
+                                <div class="athlete-detail">#36, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Benjamin Hill</div>
+                                <div class="athlete-detail">#17, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Alexander Nelson</div>
+                                <div class="athlete-detail">#56, LB - Critical</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>21 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>0 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>0 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Moderate group needing RFD work. Consider contrast training emphasis in next phase for these athletes.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> If you planned trap bar deadlifts, pair them with vertical jumps in a superset. Still the same movements, just executed as contrasts.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 3: POWER OUTPUT</h3>
+                <p>📉 Trend: Peak Power declining</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Contrast/complex training</li>
+                            <li>Cluster sets (70-80% 1RM)</li>
+                            <li>Olympic lift variations</li>
+                            <li>Ballistic movements emphasis</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Contrast/complex training</li>
+                            <li>Resisted sprints (30-50% vdec)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 42</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">James Smith</div>
+                                <div class="athlete-detail">#63, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Michael Johnson</div>
+                                <div class="athlete-detail">#41, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">David Brown</div>
+                                <div class="athlete-detail">#19, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Richard Garcia</div>
+                                <div class="athlete-detail">#85, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Thomas Davis</div>
+                                <div class="athlete-detail">#43, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Daniel Martinez</div>
+                                <div class="athlete-detail">#1, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Matthew Hernandez</div>
+                                <div class="athlete-detail">#32, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Steven Anderson</div>
+                                <div class="athlete-detail">#45, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Andrew Taylor</div>
+                                <div class="athlete-detail">#23, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kenneth Jackson</div>
+                                <div class="athlete-detail">#89, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kevin Martin</div>
+                                <div class="athlete-detail">#74, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">George Perez</div>
+                                <div class="athlete-detail">#71, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Timothy Thompson</div>
+                                <div class="athlete-detail">#69, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ronald White</div>
+                                <div class="athlete-detail">#16, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jason Sanchez</div>
+                                <div class="athlete-detail">#34, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ryan Ramirez</div>
+                                <div class="athlete-detail">#82, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jacob Lewis</div>
+                                <div class="athlete-detail">#12, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Eric Young</div>
+                                <div class="athlete-detail">#31, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jonathan Allen</div>
+                                <div class="athlete-detail">#29, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Larry Wright</div>
+                                <div class="athlete-detail">#6, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Justin Scott</div>
+                                <div class="athlete-detail">#46, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brandon Nguyen</div>
+                                <div class="athlete-detail">#36, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Benjamin Hill</div>
+                                <div class="athlete-detail">#17, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Samuel Flores</div>
+                                <div class="athlete-detail">#73, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gregory Adams</div>
+                                <div class="athlete-detail">#8, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Alexander Nelson</div>
+                                <div class="athlete-detail">#56, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Patrick Baker</div>
+                                <div class="athlete-detail">#28, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Frank Hall</div>
+                                <div class="athlete-detail">#20, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">Charles Rodriguez</div>
+                                <div class="athlete-detail">#11, RB - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">Anthony Lopez</div>
+                                <div class="athlete-detail">#77, RB - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">Mark Gonzalez</div>
+                                <div class="athlete-detail">#48, RB - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">William Jones</div>
+                                <div class="athlete-detail">#98, WR - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Paul Thomas</div>
+                                <div class="athlete-detail">#5, TE - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Joshua Moore</div>
+                                <div class="athlete-detail">#13, QB - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Jeffrey Clark</div>
+                                <div class="athlete-detail">#10, OL - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Nicholas Walker</div>
+                                <div class="athlete-detail">#95, DL - Caution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>33 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>3 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>6 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Power output declining across multiple athletes. Focus on moving submaximal loads with maximal intent.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> Focus on moving submaximal loads with maximal intent. Use cluster sets for Olympic lifts.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 4: SSC EFFICIENCY</h3>
+                <p>📉 Trend: RSI-modified and Eccentric Braking RFD declining</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Reactive/ballistic techniques</li>
+                            <li>Drop jumps, altitude landings</li>
+                            <li>Reactive medicine ball work</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Plyometric training (pogos, bounds, hurdle hops)</li>
+                            <li>Reactive agility drills</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 29</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">James Smith</div>
+                                <div class="athlete-detail">#63, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Michael Johnson</div>
+                                <div class="athlete-detail">#41, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">William Jones</div>
+                                <div class="athlete-detail">#98, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Thomas Davis</div>
+                                <div class="athlete-detail">#43, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Charles Rodriguez</div>
+                                <div class="athlete-detail">#11, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Daniel Martinez</div>
+                                <div class="athlete-detail">#1, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Matthew Hernandez</div>
+                                <div class="athlete-detail">#32, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Anthony Lopez</div>
+                                <div class="athlete-detail">#77, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Mark Gonzalez</div>
+                                <div class="athlete-detail">#48, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Steven Anderson</div>
+                                <div class="athlete-detail">#45, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Paul Thomas</div>
+                                <div class="athlete-detail">#5, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joshua Moore</div>
+                                <div class="athlete-detail">#13, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brian Lee</div>
+                                <div class="athlete-detail">#50, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Timothy Thompson</div>
+                                <div class="athlete-detail">#69, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ronald White</div>
+                                <div class="athlete-detail">#16, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jason Sanchez</div>
+                                <div class="athlete-detail">#34, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jeffrey Clark</div>
+                                <div class="athlete-detail">#10, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gary Robinson</div>
+                                <div class="athlete-detail">#66, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jonathan Allen</div>
+                                <div class="athlete-detail">#29, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Larry Wright</div>
+                                <div class="athlete-detail">#6, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Justin Scott</div>
+                                <div class="athlete-detail">#46, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Samuel Flores</div>
+                                <div class="athlete-detail">#73, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Alexander Nelson</div>
+                                <div class="athlete-detail">#56, LB - Critical</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>29 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>0 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>0 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Stretch-shortening cycle efficiency compromised. Emphasize quick ground contacts and reactive training.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> Emphasize quick ground contacts. Think "hot ground" mentality rather than max height.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 5: ECCENTRIC CONTROL & BRAKING</h3>
+                <p>📉 Trend: Eccentric braking force and RFD declining</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Tempo eccentrics (5-second down on squats/RDLs)</li>
+                            <li>Accentuated eccentric overload (105-120% 1RM)</li>
+                            <li>Reverse band work (overload eccentric phase)</li>
+                            <li>Example: Safety bar squat with 5-count down</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Change of direction drills</li>
+                            <li>Deceleration-focused agility work</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 40</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">James Smith</div>
+                                <div class="athlete-detail">#63, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Michael Johnson</div>
+                                <div class="athlete-detail">#41, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">David Brown</div>
+                                <div class="athlete-detail">#19, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Richard Garcia</div>
+                                <div class="athlete-detail">#85, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Thomas Davis</div>
+                                <div class="athlete-detail">#43, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Charles Rodriguez</div>
+                                <div class="athlete-detail">#11, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Daniel Martinez</div>
+                                <div class="athlete-detail">#1, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Anthony Lopez</div>
+                                <div class="athlete-detail">#77, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Mark Gonzalez</div>
+                                <div class="athlete-detail">#48, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Steven Anderson</div>
+                                <div class="athlete-detail">#45, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Andrew Taylor</div>
+                                <div class="athlete-detail">#23, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kenneth Jackson</div>
+                                <div class="athlete-detail">#89, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brian Lee</div>
+                                <div class="athlete-detail">#50, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Timothy Thompson</div>
+                                <div class="athlete-detail">#69, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ronald White</div>
+                                <div class="athlete-detail">#16, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Edward Harris</div>
+                                <div class="athlete-detail">#40, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jeffrey Clark</div>
+                                <div class="athlete-detail">#10, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ryan Ramirez</div>
+                                <div class="athlete-detail">#82, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jacob Lewis</div>
+                                <div class="athlete-detail">#12, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gary Robinson</div>
+                                <div class="athlete-detail">#66, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Nicholas Walker</div>
+                                <div class="athlete-detail">#95, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Eric Young</div>
+                                <div class="athlete-detail">#31, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Larry Wright</div>
+                                <div class="athlete-detail">#6, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Justin Scott</div>
+                                <div class="athlete-detail">#46, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brandon Nguyen</div>
+                                <div class="athlete-detail">#36, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Benjamin Hill</div>
+                                <div class="athlete-detail">#17, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Samuel Flores</div>
+                                <div class="athlete-detail">#73, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gregory Adams</div>
+                                <div class="athlete-detail">#8, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Frank Hall</div>
+                                <div class="athlete-detail">#20, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">Matthew Hernandez</div>
+                                <div class="athlete-detail">#32, RB - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item warning">
+                            <span class="emoji">🟠</span>
+                            <div>
+                                <div class="athlete-name">George Perez</div>
+                                <div class="athlete-detail">#71, OL - Warning</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Joshua Moore</div>
+                                <div class="athlete-detail">#13, QB - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Jason Sanchez</div>
+                                <div class="athlete-detail">#34, OL - Caution</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item caution">
+                            <span class="emoji">🟡</span>
+                            <div>
+                                <div class="athlete-name">Jonathan Allen</div>
+                                <div class="athlete-detail">#29, DL - Caution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>34 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>3 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>3 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Injury risk concern. Prioritize eccentric strength development. Add tempo work or reverse bands.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> If doing safety bar squats, add a 5-count down. Or use reverse bands. We've done this before.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 6: TECHNICAL / COORDINATION</h3>
+                <p>📉 Trend: Contraction Time and Time to Peak Force increasing</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Wave loading (vary intensity within session)</li>
+                            <li>Cluster sets</li>
+                            <li>Rhythmic tempo work (consistent cadence)</li>
+                            <li>Motor control focus</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Movement skill retraining</li>
+                            <li>Motor control drills</li>
+                            <li>Technical sprint work (not conditioning)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 32</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Robert Williams</div>
+                                <div class="athlete-detail">#96, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">William Jones</div>
+                                <div class="athlete-detail">#98, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Richard Garcia</div>
+                                <div class="athlete-detail">#85, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Thomas Davis</div>
+                                <div class="athlete-detail">#43, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Matthew Hernandez</div>
+                                <div class="athlete-detail">#32, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Anthony Lopez</div>
+                                <div class="athlete-detail">#77, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Paul Thomas</div>
+                                <div class="athlete-detail">#5, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Andrew Taylor</div>
+                                <div class="athlete-detail">#23, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joshua Moore</div>
+                                <div class="athlete-detail">#13, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kenneth Jackson</div>
+                                <div class="athlete-detail">#89, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kevin Martin</div>
+                                <div class="athlete-detail">#74, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brian Lee</div>
+                                <div class="athlete-detail">#50, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">George Perez</div>
+                                <div class="athlete-detail">#71, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Timothy Thompson</div>
+                                <div class="athlete-detail">#69, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Edward Harris</div>
+                                <div class="athlete-detail">#40, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jeffrey Clark</div>
+                                <div class="athlete-detail">#10, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Ryan Ramirez</div>
+                                <div class="athlete-detail">#82, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jacob Lewis</div>
+                                <div class="athlete-detail">#12, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Gary Robinson</div>
+                                <div class="athlete-detail">#66, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Nicholas Walker</div>
+                                <div class="athlete-detail">#95, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Eric Young</div>
+                                <div class="athlete-detail">#31, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jonathan Allen</div>
+                                <div class="athlete-detail">#29, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Larry Wright</div>
+                                <div class="athlete-detail">#6, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Scott Torres</div>
+                                <div class="athlete-detail">#70, DL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Benjamin Hill</div>
+                                <div class="athlete-detail">#17, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Samuel Flores</div>
+                                <div class="athlete-detail">#73, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Raymond Green</div>
+                                <div class="athlete-detail">#35, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Alexander Nelson</div>
+                                <div class="athlete-detail">#56, LB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Frank Hall</div>
+                                <div class="athlete-detail">#20, LB - Critical</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>32 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>0 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>0 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Movement efficiency declining. Reduce intensity and focus on movement quality.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> Think movement quality over load. Use wave loading to get quality reps at different intensities.
+                </div>
+            </div>
+        </div>
+
+        <div class="category-card">
+            <div class="category-header">
+                <h3>CATEGORY 7: ASYMMETRY / LIMB IMBALANCE</h3>
+                <p>📉 Trend: L-R Force Asymmetry > 10%</p>
+            </div>
+            <div class="category-body">
+                <div class="recommendations">
+                    <div class="rec-section">
+                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Single-leg/unilateral strength work</li>
+                            <li>Split-stance patterns (split squats, SL RDLs)</li>
+                            <li>Unilateral jumps and landings</li>
+                            <li>Offset loading</li>
+                        </ul>
+                    </div>
+                    <div class="rec-section">
+                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <ul>
+                            <li>Unilateral jumps</li>
+                            <li>Single-leg bounds</li>
+                            <li>Asymmetrical agility work</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="athletes-section">
+                    <h4>👥 ATHLETES IN THIS CATEGORY: 7</h4>
+                    <div class="athlete-list">
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Joseph Miller</div>
+                                <div class="athlete-detail">#65, WR - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Matthew Hernandez</div>
+                                <div class="athlete-detail">#32, RB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Donald Wilson</div>
+                                <div class="athlete-detail">#27, TE - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Kevin Martin</div>
+                                <div class="athlete-detail">#74, QB - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Brian Lee</div>
+                                <div class="athlete-detail">#50, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Jeffrey Clark</div>
+                                <div class="athlete-detail">#10, OL - Critical</div>
+                            </div>
+                        </div>
+                        <div class="athlete-item critical">
+                            <span class="emoji">🔴</span>
+                            <div>
+                                <div class="athlete-name">Stephen King</div>
+                                <div class="athlete-detail">#90, DL - Critical</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="distribution">
+                        <div class="dist-item">
+                            <span class="emoji">🔴</span>
+                            <strong>7 Critical</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟠</span>
+                            <strong>0 Warning</strong>
+                        </div>
+                        <div class="dist-item">
+                            <span class="emoji">🟡</span>
+                            <strong>0 Caution</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interpretation-box">
+                    <strong>💡 INTERPRETATION:</strong> Limb imbalances requiring attention. Address through unilateral training.
+                </div>
+
+                <div class="execution-box">
+                    <strong>⚡ EXECUTION NOTE:</strong> If squats are programmed, replace with split squats. Address the imbalance through exercise selection.
+                </div>
+            </div>
+        </div>
+
+        <div class="action-box">
+            <h3>🎯 COACHING RECOMMENDATIONS FOR NEXT PHASE</h3>
+
+            <div class="priority-item">
+                <h4>Priority 1: Category 5 (Eccentric Control & Braking) - 34 CRITICAL FLAGS</h4>
+                <ul>
+                    <li>Tempo eccentrics (5-second down on squats/RDLs)</li>
+                    <li>Accentuated eccentric overload (105-120% 1RM)</li>
+                    <li>Reverse band work (overload eccentric phase)</li>
+                </ul>
+            </div>
+
+            <div class="priority-item">
+                <h4>Priority 2: Category 3 (Power Output) - 33 CRITICAL FLAGS</h4>
+                <ul>
+                    <li>Contrast/complex training</li>
+                    <li>Cluster sets (70-80% 1RM)</li>
+                    <li>Olympic lift variations</li>
+                </ul>
+            </div>
+
+            <div class="priority-item">
+                <h4>Priority 3: Category 6 (Technical / Coordination) - 32 CRITICAL FLAGS</h4>
+                <ul>
+                    <li>Wave loading (vary intensity within session)</li>
+                    <li>Cluster sets</li>
+                    <li>Rhythmic tempo work (consistent cadence)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>NOTE:</strong> These recommendations can be implemented without changing planned exercises - just modify execution style, rest periods, and exercise pairing/sequencing.
+        </div>
+
+        <div class="footer">
+            <p><strong>Report generated:</strong> November 28, 2025 at 04:19 PM</p>
+            <p><strong>Next report:</strong> End of Winter Preparation Phase</p>
+            <p style="margin-top: 10px;">Questions? Contact: Sports Science Team</p>
+        </div>
+    </div>
+</body>
+</html>
