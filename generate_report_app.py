@@ -19,7 +19,6 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(
     page_title="Force Plate Report Generator",
-    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -266,12 +265,12 @@ def classify_severity(deviation, swc):
     """Classify deviation severity"""
     abs_dev = abs(deviation)
     if abs_dev > SEVERITY_THRESHOLDS['red'] * swc:
-        return 'critical', '🔴'
+        return 'critical', '●'
     elif abs_dev > SEVERITY_THRESHOLDS['orange'] * swc:
-        return 'warning', '🟠'
+        return 'warning', '●'
     elif abs_dev > SEVERITY_THRESHOLDS['yellow'] * swc:
-        return 'caution', '🟡'
-    return 'normal', '🟢'
+        return 'caution', '●'
+    return 'normal', '●'
 
 def categorize_athletes(df):
     """Categorize athletes based on trends"""
@@ -314,7 +313,7 @@ def categorize_athletes(df):
 
                 if rule.get('trend') == 'absolute':
                     if current > rule['threshold']:
-                        severity, emoji = 'critical', '🔴'
+                        severity, emoji = 'critical', '●'
                     else:
                         all_flagged = False
                         break
@@ -340,7 +339,7 @@ def categorize_athletes(df):
                     'name': athlete,
                     'position': pos,
                     'severity': worst_severity,
-                    'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity]
+                    'emoji': {'critical': '●', 'warning': '●', 'caution': '●'}[worst_severity]
                 })
 
         category_athletes.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
@@ -421,7 +420,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
 <body>
     <div class="page">
         <div class="header">
-            <h1>⚡ FORCE PLATE TRAINING REPORT</h1>
+            <h1>FORCE PLATE TRAINING REPORT</h1>
             <div class="header-info">
                 <div><strong>Team:</strong> <span>{team_name}</span></div>
                 <div><strong>Report Date:</strong> <span>{report_date.strftime('%B %d, %Y')}</span></div>
@@ -433,7 +432,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         </div>
 
         <div class="summary-box">
-            <h2>📊 EXECUTIVE SUMMARY</h2>
+            <h2>EXECUTIVE SUMMARY</h2>
             <p><strong>{categories_flagged} categories flagged</strong> with <strong>{total_flagged} total athletes</strong> needing intervention ({total_flagged/total_athletes*100:.0f}% of roster)</p>
             <p style="margin-top: 10px;">Recommendations based on force plate testing data. Focus on execution-style modifications for next training phase.</p>
         </div>
@@ -447,12 +446,12 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         <div class="category-card">
             <div class="category-header">
                 <h3>CATEGORY {cat_num}: {cat_data['name']}</h3>
-                <p>📉 Trend: {cat_data['trend_desc']}</p>
+                <p>Trend: {cat_data['trend_desc']}</p>
             </div>
             <div class="category-body">
                 <div class="recommendations">
                     <div class="rec-section">
-                        <h4>🏋️ WEIGHT ROOM RECOMMENDATIONS:</h4>
+                        <h4>WEIGHT ROOM RECOMMENDATIONS:</h4>
                         <ul>
 """
 
@@ -462,7 +461,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         html += """                        </ul>
                     </div>
                     <div class="rec-section">
-                        <h4>⚡ FIELD RECOMMENDATIONS:</h4>
+                        <h4>FIELD RECOMMENDATIONS:</h4>
                         <ul>
 """
 
@@ -474,7 +473,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
                 </div>
 
                 <div class="athletes-section">
-                    <h4>👥 ATHLETES IN THIS CATEGORY: {cat_data['count']}</h4>
+                    <h4>ATHLETES IN THIS CATEGORY: {cat_data['count']}</h4>
                     <div class="athlete-list">
 """
 
@@ -494,18 +493,18 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         html += f"""                    </div>
 
                     <div class="distribution">
-                        <div class="dist-item"><span class="emoji">🔴</span><strong>{cat_data['critical']} Critical</strong></div>
-                        <div class="dist-item"><span class="emoji">🟠</span><strong>{cat_data['warning']} Warning</strong></div>
-                        <div class="dist-item"><span class="emoji">🟡</span><strong>{cat_data['caution']} Caution</strong></div>
+                        <div class="dist-item"><strong>{cat_data['critical']} Critical</strong></div>
+                        <div class="dist-item"><strong>{cat_data['warning']} Warning</strong></div>
+                        <div class="dist-item"><strong>{cat_data['caution']} Caution</strong></div>
                     </div>
                 </div>
 
                 <div class="interpretation-box">
-                    <strong>💡 INTERPRETATION:</strong> {cat_data['interpretation']}
+                    <strong>INTERPRETATION:</strong> {cat_data['interpretation']}
                 </div>
 
                 <div class="execution-box">
-                    <strong>⚡ EXECUTION NOTE:</strong> {cat_data['execution_note']}
+                    <strong>EXECUTION NOTE:</strong> {cat_data['execution_note']}
                 </div>
             </div>
         </div>
@@ -553,24 +552,24 @@ def generate_text_report(results, df, team_name, training_phase):
         report.append("\n" + "="*80)
         report.append(f"CATEGORY {cat_num}: {cat_data['name']}")
         report.append("="*80)
-        report.append(f"📉 Trend: {cat_data['trend_desc']}")
+        report.append(f"Trend: {cat_data['trend_desc']}")
 
-        report.append("\n🏋️ WEIGHT ROOM RECOMMENDATIONS:")
+        report.append("\nWEIGHT ROOM RECOMMENDATIONS:")
         for suggestion in cat_data['wr_suggestions']:
             report.append(f"  • {suggestion}")
 
-        report.append("\n⚡ FIELD RECOMMENDATIONS:")
+        report.append("\nFIELD RECOMMENDATIONS:")
         for suggestion in cat_data['field_suggestions']:
             report.append(f"  • {suggestion}")
 
-        report.append(f"\n👥 ATHLETES IN THIS CATEGORY: {cat_data['count']}")
+        report.append(f"\nATHLETES IN THIS CATEGORY: {cat_data['count']}")
         for athlete in cat_data['athletes']:
             pos_str = f", {athlete['position']}" if athlete['position'] else ""
             report.append(f"  {athlete['emoji']} {athlete['name']}{pos_str} - {athlete['severity'].title()}")
 
         report.append(f"\n  Distribution: {cat_data['critical']} Critical | {cat_data['warning']} Warning | {cat_data['caution']} Caution")
-        report.append(f"\n💡 INTERPRETATION: {cat_data['interpretation']}")
-        report.append(f"\n⚡ EXECUTION NOTE: {cat_data['execution_note']}")
+        report.append(f"\nINTERPRETATION: {cat_data['interpretation']}")
+        report.append(f"\nEXECUTION NOTE: {cat_data['execution_note']}")
         report.append("")
 
     report.append("\n" + "="*80)
@@ -594,28 +593,47 @@ def create_download_link(content, filename, file_type):
 
 def main():
     # Header
-    st.title("⚡ Force Plate Training Report Generator")
+    st.title("Force Plate Training Report Generator")
     st.markdown("**Baylor University Athletics - B.A.I.R. Initiative**")
     st.markdown("---")
 
     # Sidebar - Settings
-    st.sidebar.header("⚙️ Report Settings")
+    st.sidebar.header("Report Settings")
 
     team_name = st.sidebar.text_input("Team Name", "Baylor Football")
     training_phase = st.sidebar.text_input("Current Training Phase", "Fall Training Block")
     next_phase = st.sidebar.text_input("Next Phase", "Winter Preparation Phase")
 
     st.sidebar.markdown("---")
-    st.sidebar.header("📖 Instructions")
+    st.sidebar.header("Data Window")
+
+    date_window_option = st.sidebar.selectbox(
+        "Select time period for analysis",
+        options=["All Data", "Last 1 Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Custom Date Range"],
+        index=2  # Default to Last 3 Months
+    )
+
+    # Custom date range inputs (only shown if Custom is selected)
+    start_date = None
+    end_date = None
+    if date_window_option == "Custom Date Range":
+        col_start, col_end = st.sidebar.columns(2)
+        with col_start:
+            start_date = st.date_input("Start Date", value=pd.Timestamp.now() - pd.DateOffset(months=6))
+        with col_end:
+            end_date = st.date_input("End Date", value=pd.Timestamp.now())
+
+    st.sidebar.markdown("---")
+    st.sidebar.header("Instructions")
     st.sidebar.markdown("""
     1. Upload your three data files
-    2. Review the file validation
+    2. Select date window for analysis
     3. Click "Generate Report"
     4. Download HTML, Text, or PDF
     """)
 
     # Main content
-    st.header("📤 Upload Data Files")
+    st.header("Upload Data Files")
 
     col1, col2, col3 = st.columns(3)
 
@@ -627,7 +645,7 @@ def main():
             help="Countermovement Jump data from ForceDecks"
         )
         if cmj_file:
-            st.success(f"✅ {cmj_file.name}")
+            st.success(f"Uploaded: {cmj_file.name}")
 
     with col2:
         st.subheader("IMTP Data")
@@ -637,7 +655,7 @@ def main():
             help="Isometric Mid-Thigh Pull data from ForceDecks"
         )
         if imtp_file:
-            st.success(f"✅ {imtp_file.name}")
+            st.success(f"Uploaded: {imtp_file.name}")
 
     with col3:
         st.subheader("Roster")
@@ -647,57 +665,74 @@ def main():
             help="Athlete roster with positions"
         )
         if roster_file:
-            st.success(f"✅ {roster_file.name}")
+            st.success(f"Uploaded: {roster_file.name}")
 
     st.markdown("---")
 
     # Generate button
-    if st.button("🚀 Generate Report", type="primary", use_container_width=True):
+    if st.button("Generate Report", type="primary", use_container_width=True):
         if not all([cmj_file, imtp_file, roster_file]):
-            st.error("❌ Please upload all three files before generating the report.")
+            st.error("Please upload all three files before generating the report.")
         else:
             with st.spinner("Loading and validating data files..."):
                 cmj, imtp, roster, error = load_and_validate_files(cmj_file, imtp_file, roster_file)
 
                 if error:
-                    st.error(f"❌ Error loading files: {error}")
+                    st.error(f"Error loading files: {error}")
                     return
 
-                st.success(f"✅ Loaded CMJ: {len(cmj)} tests from {cmj['Name'].nunique()} athletes")
-                st.success(f"✅ Loaded IMTP: {len(imtp)} tests from {imtp['Name'].nunique()} athletes")
-                st.success(f"✅ Loaded Roster: {len(roster)} athletes")
+                st.success(f"Loaded CMJ: {len(cmj)} tests from {cmj['Name'].nunique()} athletes")
+                st.success(f"Loaded IMTP: {len(imtp)} tests from {imtp['Name'].nunique()} athletes")
+                st.success(f"Loaded Roster: {len(roster)} athletes")
 
             with st.spinner("Processing and merging data..."):
                 merged_df = process_data(cmj, imtp, roster)
-                st.success(f"✅ Merged dataset: {len(merged_df)} tests from {merged_df['Athlete_Name'].nunique()} athletes")
+                st.success(f"Merged dataset: {len(merged_df)} tests from {merged_df['Athlete_Name'].nunique()} athletes")
+
+            # Apply date filtering based on user selection
+            with st.spinner("Applying date filter..."):
+                if date_window_option == "All Data":
+                    filtered_df = merged_df.copy()
+                elif date_window_option == "Custom Date Range":
+                    filtered_df = merged_df[
+                        (merged_df['Date'] >= pd.to_datetime(start_date)) &
+                        (merged_df['Date'] <= pd.to_datetime(end_date))
+                    ].copy()
+                else:
+                    # Extract months from option (e.g., "Last 3 Months" -> 3)
+                    months = int(date_window_option.split()[1])
+                    cutoff_date = pd.Timestamp.now() - pd.DateOffset(months=months)
+                    filtered_df = merged_df[merged_df['Date'] >= cutoff_date].copy()
+
+                st.success(f"Date filter applied: {len(filtered_df)} tests from {filtered_df['Athlete_Name'].nunique()} athletes in selected window")
 
             with st.spinner("Categorizing athletes and analyzing trends..."):
-                results = categorize_athletes(merged_df)
+                results = categorize_athletes(filtered_df)
                 total_flagged = len(set([a['name'] for cat in results['categories'].values() for a in cat['athletes']]))
-                st.success(f"✅ Found {len(results['categories'])} categories with {total_flagged} athletes flagged")
+                st.success(f"Found {len(results['categories'])} categories with {total_flagged} athletes flagged")
 
             with st.spinner("Generating reports..."):
-                html_report = generate_html_report(results, merged_df, team_name, training_phase, next_phase)
-                text_report = generate_text_report(results, merged_df, team_name, training_phase)
+                html_report = generate_html_report(results, filtered_df, team_name, training_phase, next_phase)
+                text_report = generate_text_report(results, filtered_df, team_name, training_phase)
 
-            st.success("✅ Reports generated successfully!")
+            st.success("Reports generated successfully!")
 
             # Display report
             st.markdown("---")
-            st.header("📊 Report Preview")
+            st.header("Report Preview")
 
             # Show HTML in iframe
             st.components.v1.html(html_report, height=600, scrolling=True)
 
             # Download buttons
             st.markdown("---")
-            st.header("💾 Download Reports")
+            st.header("Download Reports")
 
             col1, col2, col3 = st.columns(3)
 
             with col1:
                 st.download_button(
-                    label="📄 Download HTML",
+                    label="Download HTML",
                     data=html_report,
                     file_name=f"Training_Report_{datetime.now().strftime('%Y%m%d')}.html",
                     mime="text/html"
@@ -705,7 +740,7 @@ def main():
 
             with col2:
                 st.download_button(
-                    label="📝 Download Text",
+                    label="Download Text",
                     data=text_report,
                     file_name=f"Training_Report_{datetime.now().strftime('%Y%m%d')}.txt",
                     mime="text/plain"
