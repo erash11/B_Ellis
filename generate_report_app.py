@@ -319,7 +319,7 @@ def categorize_athletes(df):
 
                 if rule.get('trend') == 'absolute':
                     if current > rule['threshold']:
-                        severity, emoji = 'critical', '●'
+                        severity, emoji = 'critical', '🔴'
                     else:
                         all_flagged = False
                         break
@@ -345,7 +345,7 @@ def categorize_athletes(df):
                     'name': athlete,
                     'position': pos,
                     'severity': worst_severity,
-                    'emoji': {'critical': '●', 'warning': '●', 'caution': '●'}[worst_severity]
+                    'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity]
                 })
 
         category_athletes.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
