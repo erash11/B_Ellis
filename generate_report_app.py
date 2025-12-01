@@ -514,7 +514,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         <div class="footer">
             <p><strong>Report generated:</strong> {report_date.strftime('%B %d, %Y at %I:%M %p')}</p>
             <p><strong>Next report:</strong> End of {next_phase}</p>
-            <p style="margin-top: 10px;">Baylor University Athletics - B.A.I.R. Initiative</p>
+            <p style="margin-top: 10px;">Baylor University Athletics - Applied Performance</p>
         </div>
     </div>
 </body>
@@ -594,7 +594,7 @@ def create_download_link(content, filename, file_type):
 def main():
     # Header
     st.title("Force Plate Training Report Generator")
-    st.markdown("**Baylor University Athletics - B.A.I.R. Initiative**")
+    st.markdown("**Baylor University Athletics - Applied Performance**")
     st.markdown("---")
 
     # Sidebar - Settings

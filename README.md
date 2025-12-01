@@ -2,8 +2,6 @@
 
 **Simple web-based force plate analysis for coaching staff**
 
-Built for Baylor University Athletics - B.A.I.R. Initiative
-
 ---
 
 ## 📋 What This Does
