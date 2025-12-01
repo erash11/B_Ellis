@@ -13,6 +13,12 @@ from typing import Dict, Tuple
 import warnings
 warnings.filterwarnings('ignore')
 
+try:
+    from weasyprint import HTML
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+
 # ============================================================================
 # PAGE CONFIGURATION
 # ============================================================================
@@ -578,6 +584,19 @@ def generate_text_report(results, df, team_name, training_phase):
 
     return "\n".join(report)
 
+def generate_pdf_report(html_content):
+    """Convert HTML report to PDF using WeasyPrint"""
+    if not WEASYPRINT_AVAILABLE:
+        return None
+
+    try:
+        # Create PDF in memory
+        pdf_bytes = HTML(string=html_content).write_pdf()
+        return pdf_bytes
+    except Exception as e:
+        st.error(f"PDF generation error: {str(e)}")
+        return None
+
 def create_download_link(content, filename, file_type):
     """Create download link for file"""
     if file_type == 'html':
@@ -747,7 +766,21 @@ def main():
                 )
 
             with col3:
-                st.info("PDF export requires additional setup. Use browser's Print to PDF feature from the HTML report.")
+                if WEASYPRINT_AVAILABLE:
+                    with st.spinner("Generating PDF..."):
+                        pdf_data = generate_pdf_report(html_report)
+
+                    if pdf_data:
+                        st.download_button(
+                            label="Download PDF",
+                            data=pdf_data,
+                            file_name=f"Training_Report_{datetime.now().strftime('%Y%m%d')}.pdf",
+                            mime="application/pdf"
+                        )
+                    else:
+                        st.error("PDF generation failed. Use browser's Print to PDF feature from the HTML report.")
+                else:
+                    st.info("PDF library not available. Use browser's Print to PDF feature from the HTML report.")
 
     # Footer
     st.markdown("---")
