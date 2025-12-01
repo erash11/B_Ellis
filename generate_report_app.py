@@ -271,12 +271,12 @@ def classify_severity(deviation, swc):
     """Classify deviation severity"""
     abs_dev = abs(deviation)
     if abs_dev > SEVERITY_THRESHOLDS['red'] * swc:
-        return 'critical', '●'
+        return 'critical', '🔴'
     elif abs_dev > SEVERITY_THRESHOLDS['orange'] * swc:
-        return 'warning', '●'
+        return 'warning', '🟠'
     elif abs_dev > SEVERITY_THRESHOLDS['yellow'] * swc:
-        return 'caution', '●'
-    return 'normal', '●'
+        return 'caution', '🟡'
+    return 'normal', '🟢'
 
 def categorize_athletes(df):
     """Categorize athletes based on trends"""
@@ -319,7 +319,7 @@ def categorize_athletes(df):
 
                 if rule.get('trend') == 'absolute':
                     if current > rule['threshold']:
-                        severity, emoji = 'critical', '●'
+                        severity, emoji = 'critical', '🔴'
                     else:
                         all_flagged = False
                         break
@@ -345,7 +345,7 @@ def categorize_athletes(df):
                     'name': athlete,
                     'position': pos,
                     'severity': worst_severity,
-                    'emoji': {'critical': '●', 'warning': '●', 'caution': '●'}[worst_severity]
+                    'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity]
                 })
 
         category_athletes.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
