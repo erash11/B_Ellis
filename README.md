@@ -1,157 +1,100 @@
-# Baylor Football Force Plate Training Report System
+# Force Plate Training Report Generator
 
-**Automated force plate data analysis and training report generation**
+**Simple web-based force plate analysis for coaching staff**
 
 Built for Baylor University Athletics - B.A.I.R. Initiative
 
 ---
 
-## 📋 Overview
+## 📋 What This Does
 
-This system analyzes force plate testing data (CMJ and IMTP) from ForceDecks/Hawkin software and generates actionable training reports for coaching staff. The reports categorize athletes into 7 performance categories and provide execution-style recommendations without prescribing specific exercises.
+Analyzes force plate testing data (CMJ and IMTP) from ForceDecks and generates actionable training reports. The web app categorizes athletes into 7 performance categories and provides execution-style recommendations for coaching staff.
 
-### What This System Does:
-
-- ✅ Analyzes 6 months of CMJ and IMTP force plate data
-- ✅ Identifies declining performance trends using Smallest Worthwhile Change (SWC) methodology
-- ✅ Categorizes athletes into 7 performance categories
-- ✅ Generates professional HTML and text reports
-- ✅ Provides actionable weight room and field recommendations
-- ✅ Prioritizes athletes by severity (Critical 🔴, Warning 🟠, Caution 🟡)
-
----
-
-## 🚀 Quick Start Guide
-
-### Option 1: Run Demo Report (Sample Data)
-
-Perfect for understanding how the system works before using real data.
-
-```bash
-# Install dependencies
-pip install pandas numpy openpyxl
-
-# Generate demo report with sample data
-python demo_report.py
-```
-
-This creates:
-- `Baylor_Training_Report_DEMO.html` - Interactive report
-- `Baylor_Training_Report_DEMO.txt` - Text version
-
-**Open the HTML file in your browser to view the report.**
-
-### Option 2: Run Real Data Report
-
-Use your actual ForceDecks data.
-
-```bash
-# Ensure you have the required data files:
-# - CMJ export CSV
-# - IMTP export CSV
-# - Roster file with positions
-
-# Generate real report
-python generate_real_report.py
-```
-
-This creates:
-- `Baylor_Training_Report_REAL.html` - Interactive report with real data
-- `Baylor_Training_Report_REAL.txt` - Text version
+**Key Features:**
+- ✅ Web-based interface - no command line needed
+- ✅ Drag & drop file upload
+- ✅ Instant report generation
+- ✅ Download HTML, Text, or PDF reports
+- ✅ Color-coded athlete priorities (🔴 Critical, 🟠 Warning, 🟡 Caution)
+- ✅ Configurable team and phase settings
 
 ---
 
-## 📊 Complete Workflow: From ForceDecks to Report
+## 🚀 Quick Start
 
-### Step 1: Export Data from ForceDecks
+### Step 1: Install Dependencies
 
-**Export CMJ Tests:**
+```bash
+pip install -r requirements.txt
+```
+
+This installs: Streamlit, Pandas, NumPy, Plotly, and openpyxl
+
+### Step 2: Launch the Web App
+
+```bash
+streamlit run generate_report_app.py
+```
+
+The app will automatically open in your browser at `http://localhost:8501`
+
+### Step 3: Upload Your Data
+
+1. **Upload CMJ data** (Countermovement Jump tests from ForceDecks)
+2. **Upload IMTP data** (Isometric Mid-Thigh Pull tests from ForceDecks)
+3. **Upload Roster** (Athlete names and positions)
+
+Drag & drop files or click to browse.
+
+### Step 4: Generate Report
+
+1. Adjust team name and training phase in sidebar (optional)
+2. Click the **"Generate Report"** button
+3. Wait 30-60 seconds for processing
+4. View report preview in browser
+
+### Step 5: Download & Share
+
+- **HTML Report** - Full interactive report for email/sharing
+- **Text Report** - Simple text version for printing
+- **PDF** - Use browser's Print-to-PDF feature (File → Print → Save as PDF)
+
+---
+
+## 📊 Exporting Data from ForceDecks
+
+### CMJ Data Export
+
 1. Open ForceDecks software
-2. Navigate to **Reports** → **Export Data**
-3. Select test type: **CMJ (Countermovement Jump)**
+2. Navigate to **Reports → Export Data**
+3. Select **CMJ (Countermovement Jump)**
 4. Date range: Last 6 months
-5. Include these metrics:
+5. Include metrics:
    - Peak Power
    - RSI-modified
    - Contraction Time
    - Eccentric Mean Braking Force
    - Eccentric Braking RFD
 6. Export as CSV
-7. Save as: `YYYY-MM-DD-CMJ_Last6mnths.csv`
 
-**Export IMTP Tests:**
-1. In ForceDecks, go to **Reports** → **Export Data**
-2. Select test type: **IMTP (Isometric Mid-Thigh Pull)**
-3. Same date range as CMJ
-4. Include these metrics:
+### IMTP Data Export
+
+1. In ForceDecks → **Reports → Export Data**
+2. Select **IMTP (Isometric Mid-Thigh Pull)**
+3. Same 6-month date range
+4. Include metrics:
    - Peak Vertical Force
    - Net Peak Vertical Force
    - Force at 50ms, 100ms, 200ms
    - Peak Vertical Force % (Asymmetry)
    - Start Time to Peak Force
 5. Export as CSV
-6. Save as: `YYYY-MM-DD-IMTP_Last6mnths.csv`
 
-**Prepare Roster File:**
-1. Create Excel or CSV with two columns:
-   - `Name` - Athlete full name (must match ForceDecks exactly)
-   - `Position` - Position abbreviation (WR, RB, OL, DL, etc.)
-2. Save as: `YYYY-MM-DD_FB_Roster.csv`
+### Roster File
 
-### Step 2: Place Files in Repository
-
-Copy all three files to your B_Ellis project folder:
-```
-B_Ellis/
-├── 2025-11-27-CMJ_Last6mnths.csv
-├── 2025-11-27-IMTP_Last6mnths.csv
-├── 2025-11-27_FB_Roster.csv
-└── generate_real_report.py
-```
-
-### Step 3: Update File Paths (if needed)
-
-If your filenames are different, edit `generate_real_report.py`:
-
-```python
-# Update these lines near the top of the file:
-ROSTER_FILE = 'YOUR_ROSTER_FILE.csv'
-CMJ_FILE = 'YOUR_CMJ_FILE.csv'
-IMTP_FILE = 'YOUR_IMTP_FILE.csv'
-```
-
-### Step 4: Generate Reports
-
-```bash
-python generate_real_report.py
-```
-
-Output:
-```
-Loading data files...
-✓ Loaded roster: 115 athletes
-✓ Loaded CMJ data: 1,875 tests from 113 athletes
-✓ Loaded IMTP data: 1,979 tests from 156 athletes
-
-Categorizing athletes...
-✓ Found 7 categories with issues
-✓ Flagged 114 athletes needing intervention
-
-✓ HTML report saved: Baylor_Training_Report_REAL.html
-✓ Text report saved: Baylor_Training_Report_REAL.txt
-```
-
-### Step 5: Review and Share Reports
-
-**Open the HTML report:**
-- Double-click `Baylor_Training_Report_REAL.html`
-- Opens in your default browser
-- Professional formatting with full analysis
-
-**Share with coaching staff:**
-- Email the HTML file
-- Print the text version
-- Present in team meetings
+Create a CSV or Excel file with two columns:
+- **Name** - Athlete full name (must match ForceDecks exactly)
+- **Position** - Position abbreviation (WR, RB, OL, DL, LB, DB, etc.)
 
 ---
 
@@ -159,398 +102,248 @@ Categorizing athletes...
 
 ### 7 Performance Categories
 
-The system analyzes athletes across these categories:
+Athletes are categorized based on declining trends:
 
-**Category 1: Maximal Strength Capacity**
-- Metrics: IMTP Peak Force, Net Peak Vertical Force
-- Declining maximal force production
-
-**Category 2: Explosive Strength / RFD**
-- Metrics: Force at 50ms, 100ms, 200ms
-- Early-phase rate of force development declining
-
-**Category 3: Power Output**
-- Metrics: CMJ Peak Power
-- Reduced power production in jumping
-
-**Category 4: SSC Efficiency**
-- Metrics: RSI-modified, Eccentric Braking RFD
-- Stretch-shortening cycle compromised
-
-**Category 5: Eccentric Control & Braking**
-- Metrics: Eccentric Mean Braking Force
-- Reduced ability to absorb force
-
-**Category 6: Technical / Coordination**
-- Metrics: Contraction Time, Time to Peak Force
-- Movement efficiency declining
-
-**Category 7: Asymmetry / Limb Imbalance**
-- Metrics: L-R Force Asymmetry
-- Imbalances > 10% between limbs
+1. **Maximal Strength Capacity** - IMTP Peak Force declining
+2. **Explosive Strength / RFD** - Early-phase RFD (50-200ms) declining
+3. **Power Output** - CMJ Peak Power declining
+4. **SSC Efficiency** - RSI-modified, Eccentric Braking RFD declining
+5. **Eccentric Control & Braking** - Eccentric braking force declining
+6. **Technical / Coordination** - Contraction time, time to peak force increasing
+7. **Asymmetry / Limb Imbalance** - L-R asymmetry > 10%
 
 ### Severity Levels
 
-Each athlete is classified by severity:
-
-- 🔴 **Critical** - Deviation > 2× SWC (Immediate attention needed)
-- 🟠 **Warning** - Deviation 1.5-2× SWC (Monitor closely)
-- 🟡 **Caution** - Deviation 1-1.5× SWC (Be aware)
-- 🟢 **Normal** - Within SWC range (No intervention needed)
+- 🔴 **Critical** - Deviation > 2× SWC (immediate attention)
+- 🟠 **Warning** - Deviation 1.5-2× SWC (monitor closely)
+- 🟡 **Caution** - Deviation 1-1.5× SWC (be aware)
+- 🟢 **Normal** - Within expected range
 
 ### Report Sections
 
-**Executive Summary:**
-- Total athletes tested
-- Number and percentage flagged
-- Categories with issues
-
-**Category Breakdown:**
-- Weight room recommendations
-- Field recommendations
-- List of flagged athletes
-- Distribution by severity
-- Interpretation and execution notes
-
-**Coaching Recommendations:**
-- Top 3 priorities for next phase
-- Specific action items
+- **Executive Summary** - Total athletes tested and percentage flagged
+- **Category Breakdown** - Weight room and field recommendations
+- **Athlete Lists** - Organized by category with severity levels
+- **Coaching Priorities** - Top 3 actions for next training phase
 
 ---
 
-## 🔄 Regular Usage Workflow
-
-### Monthly/Phase-End Process
-
-1. **Export latest data** from ForceDecks (see Step 1 above)
-2. **Update file paths** in `generate_real_report.py` if using new filenames
-3. **Run report generation**: `python generate_real_report.py`
-4. **Review reports** with coaching staff
-5. **Plan next phase** based on recommendations
-6. **Archive reports** with date stamps for historical tracking
+## 🔄 Regular Usage
 
 ### When to Generate Reports
 
-**Recommended timing:**
+**✅ Good Times:**
 - End of each training phase (4-6 weeks)
-- Before major competitions
+- Before planning next mesocycle
 - After extended breaks (summer, winter)
-- When significant performance changes are observed
+- Before major competitions
 
-**Not recommended:**
-- Daily or weekly (too much noise, not enough signal)
+**❌ Avoid:**
+- Daily or weekly (not enough time to show trends)
 - Mid-phase (disrupts planned programming)
+- With < 5 tests per athlete
+
+### Typical Workflow
+
+1. **Phase Week 6:** Export latest data from ForceDecks
+2. **Launch app:** `streamlit run generate_report_app.py`
+3. **Upload files:** Drag & drop CMJ, IMTP, and Roster
+4. **Generate report:** Click button and wait
+5. **Review:** Check report preview in browser
+6. **Download:** Save HTML and PDF versions
+7. **Staff meeting:** Discuss findings and plan next phase
+8. **Archive:** Save reports with date stamps
 
 ---
 
 ## 📁 Repository Files
 
-### Report Generation Scripts
+### Essential Files
 
-- **`demo_report.py`** - Generates demo reports with sample data
-- **`generate_real_report.py`** - Processes real ForceDecks data and generates reports
-- **`generate_training_report.py`** - Original training report generator (legacy)
-- **`generate_html_report.py`** - HTML report generator (legacy)
-
-### Interactive Dashboard
-
-- **`force_plate_dashboard.py`** - Streamlit web dashboard for interactive exploration
+- **`generate_report_app.py`** - Streamlit web application (main tool)
+- **`requirements.txt`** - Python dependencies
+- **`STREAMLIT_QUICK_START.md`** - Detailed usage guide
+- **`README.md`** - This file
 
 ### Documentation
 
-- **`README.md`** - This file - Complete usage guide
-- **`START_HERE.md`** - Quick navigation guide
-- **`Force_Plate_Training_Report_Design.md`** - Complete system design and decision rules
-- **`IMPLEMENTATION_SUMMARY.md`** - 10-week implementation roadmap
-- **`data_mapping_template.md`** - ForceDecks column mapping reference
-- **`TIMEFRAME_ADJUSTMENT_GUIDE.md`** - How to adjust report timeframes
-- **`force_plate_automation_guide.md`** - Multiple deployment options
+- **`Force_Plate_Training_Report_Design.md`** - System design and decision rules
 
-### HTML Templates
+### Templates
 
-- **`Training_Report_Mockup.html`** - Visual mockup shown to stakeholders
-- **`Baylor_Training_Report_HTML.html`** - Example full report
+- **`Training_Report_Mockup.html`** - Visual mockup for stakeholders
 
-### Generated Reports (After Running Scripts)
+### Data Files (Your Files)
 
-- **`Baylor_Training_Report_DEMO.html`** - Demo report with sample data
-- **`Baylor_Training_Report_DEMO.txt`** - Demo report text version
-- **`Baylor_Training_Report_REAL.html`** - Real report with your data
-- **`Baylor_Training_Report_REAL.txt`** - Real report text version
-
-### Data Files (After Upload)
-
-- **`2025-11-27-CMJ_Last6mnthscsv.csv`** - CMJ test data
-- **`2025-11-27-IMTP_Last6mnthscsv.csv`** - IMTP test data
-- **`2025-11-27_FB_Roster_2025_ER.csv`** - Athlete roster with positions
+- **`*-CMJ_*.csv`** - Your CMJ test data
+- **`*-IMTP_*.csv`** - Your IMTP test data
+- **`*_Roster*.csv`** - Your athlete roster
 
 ---
 
-## ⚙️ Customization Options
+## ⚙️ Configuration
 
-### Adjust Timeframe
+### Adjust Settings in App
 
-Edit `generate_real_report.py`:
+Use the sidebar to configure:
+- **Team Name** (e.g., "Baylor Football")
+- **Current Training Phase** (e.g., "Fall Training Block")
+- **Next Phase** (e.g., "Winter Preparation Phase")
 
-```python
-# Change the number of months to include
-MONTHS_TO_INCLUDE = 6  # Change to 3, 6, 9, or 12
-```
+### Data Requirements
 
-### Adjust Severity Thresholds
-
-Edit the `SEVERITY_THRESHOLDS` dictionary:
-
-```python
-SEVERITY_THRESHOLDS = {
-    'red': 2.0,      # Critical (change to 2.5 for less sensitive)
-    'orange': 1.5,   # Warning
-    'yellow': 1.0    # Caution (change to 1.2 for more sensitive)
-}
-```
-
-### Modify Team Information
-
-Edit configuration variables:
-
-```python
-TEAM_NAME = "Baylor Football"  # Change team name
-TRAINING_PHASE = "Fall Training Block"  # Current phase name
-NEXT_PHASE = "Winter Preparation Phase"  # Upcoming phase
-```
-
-### Add Custom Categories
-
-Extend the `DECISION_RULES` dictionary in `generate_real_report.py`:
-
-```python
-8: {
-    'name': 'CUSTOM CATEGORY',
-    'trend_desc': 'Description of what you're tracking',
-    'metrics': ['Your_Metric_Name'],
-    'trend': 'decrease',  # or 'increase'
-    'wr_suggestions': ['Recommendation 1', 'Recommendation 2'],
-    'field_suggestions': ['Field drill 1', 'Field drill 2'],
-    'interpretation': 'What this means',
-    'execution_note': 'How to implement'
-}
-```
-
----
-
-## 🔧 Advanced Usage
-
-### Running Interactive Streamlit Dashboard
-
-For real-time exploration and individual athlete analysis:
-
-```bash
-pip install streamlit plotly
-streamlit run force_plate_dashboard.py
-```
-
-Opens interactive web dashboard at `http://localhost:8501`
-
-### Batch Processing Multiple Teams
-
-Create a wrapper script:
-
-```python
-teams = ['Football', 'Basketball', 'Baseball']
-data_paths = {
-    'Football': {'cmj': 'fb_cmj.csv', 'imtp': 'fb_imtp.csv', 'roster': 'fb_roster.csv'},
-    'Basketball': {'cmj': 'bb_cmj.csv', 'imtp': 'bb_imtp.csv', 'roster': 'bb_roster.csv'},
-}
-
-for team in teams:
-    # Update file paths
-    # Run generate_real_report.py
-    # Save with team-specific names
-```
-
-### Automating Report Generation
-
-**Windows Task Scheduler:**
-Create a batch file `run_report.bat`:
-```batch
-@echo off
-cd C:\Path\To\B_Ellis
-python generate_real_report.py
-echo Report generated at %date% %time% >> report_log.txt
-```
-
-Schedule to run weekly/monthly in Task Scheduler.
-
-**Mac/Linux Cron:**
-```bash
-# Edit crontab
-crontab -e
-
-# Add line to run every Monday at 8am
-0 8 * * 1 cd /path/to/B_Ellis && python generate_real_report.py
-```
+**Minimum for valid analysis:**
+- At least **5 tests per athlete** over the analysis period
+- **Consistent test conditions** (time of day, warmup)
+- **6 months of data** recommended
+- **Matching athlete names** across all three files
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### App Won't Start
 
-**Issue: "ModuleNotFoundError: No module named 'pandas'"**
+**Error: "streamlit is not recognized"**
 ```bash
-pip install pandas numpy openpyxl
+pip install streamlit
 ```
 
-**Issue: "FileNotFoundError: No such file or directory"**
-- Verify data files are in the same folder as the script
-- Check filenames match exactly (including .csv extension)
-- Update file paths in `generate_real_report.py`
+**Error: "No module named 'pandas'"**
+```bash
+pip install -r requirements.txt
+```
 
-**Issue: "No athletes flagged" or "All athletes flagged"**
-- Check SWC threshold sensitivity
-- Verify data quality (look for outliers or missing data)
-- Ensure sufficient test history (need 5+ tests per athlete)
+### Upload Issues
 
-**Issue: Excel file won't open as CSV**
-- Rename file extension to `.xlsx` instead of `.csv`
-- Or export from Excel as true CSV format
+**"Invalid file format"**
+- Ensure files are CSV format
+- Check that columns are correctly named
+- Re-export from ForceDecks if needed
 
-**Issue: Athlete names don't match between files**
-- Ensure exact spelling match (case-sensitive)
-- Check for extra spaces before/after names
-- Use consistent name format (First Last vs Last, First)
+**"No athletes found"**
+- Verify athlete names match **exactly** between all 3 files
+- Check for extra spaces or spelling differences
+- Use consistent name format (First Last)
+
+### Report Issues
+
+**"No athletes flagged" or "Everyone flagged"**
+- Check you have 5+ tests per athlete
+- Verify data covers at least 3-4 months
+- Ensure data quality (no major outliers)
+
+**Athletes missing from report**
+- Need minimum 5 tests to be included
+- Check athlete name spelling matches roster
+- Verify test dates are within analysis window
 
 ---
 
-## 📈 Data Quality Guidelines
+## 💡 Tips for Success
 
-### Minimum Requirements
+### First Time Users
 
-- **5+ tests per athlete** over the analysis period
-- **Consistent test conditions** (time of day, warmup protocol)
-- **Valid test reps** (exclude failed attempts)
-- **Complete metric capture** for all required fields
+1. **Test with your data files** - Make sure exports work correctly
+2. **Review with sports science staff** - Verify categories make sense
+3. **Start a staff meeting** - Don't make changes alone
+4. **Keep it simple** - Focus on top 1-2 priorities
 
-### Red Flags to Investigate
+### Regular Users
 
-- Sudden jumps/drops >50% between consecutive tests
-- Asymmetry values >30%
-- Force values <500N or >10,000N (check units)
-- Missing data for >20% of athletes
+1. **Export data consistently** - Same day each phase
+2. **Archive old reports** - Label with date and phase
+3. **Track trends** - Compare reports across phases
+4. **Trust your judgment** - Reports inform, coaches decide
 
 ### Best Practices
 
-- Test at same time of day (avoid fatigue/circadian effects)
-- Standardize warmup protocol
-- Train staff on proper test administration
-- Regularly calibrate force plates
-- Exclude tests with protocol violations
+- Generate reports at the **same point** each training phase
+- Use for **phase planning**, not daily adjustments
+- Focus on **execution style**, not exercise changes
+- Share reports **before** staff planning meetings
+- Archive reports for **longitudinal tracking**
 
 ---
 
-## 📚 Additional Resources
+## 📖 Additional Documentation
 
-### Documentation Files
-
-- **START_HERE.md** - Quick navigation to get oriented
+- **STREAMLIT_QUICK_START.md** - Step-by-step usage guide with screenshots
 - **Force_Plate_Training_Report_Design.md** - Complete technical specification
-- **data_mapping_template.md** - Column mapping guide for your ForceDecks exports
-- **TIMEFRAME_ADJUSTMENT_GUIDE.md** - How to modify analysis windows
-- **force_plate_automation_guide.md** - 4 deployment pathways (Power BI, Google Sheets, etc.)
-
-### Example Reports
-
-- Open `Training_Report_Mockup.html` to see the visual design
-- Open `Baylor_Training_Report_REAL.html` to see actual report with data
 
 ---
 
-## 🎓 Training Your Staff
+## 🔐 Data Privacy
 
-### For Coaches (Report Consumers)
-
-**Key points to communicate:**
-1. Reports are generated every 4-6 weeks (phase-end)
-2. Focus on execution style, not exercise selection
-3. Recommendations don't replace coaching judgment
-4. Color codes indicate urgency: 🔴 Critical → 🟠 Warning → 🟡 Caution
-5. All athletes in a category get the same general approach
-
-### For Sports Science Staff (Report Generators)
-
-**Workflow checklist:**
-1. [ ] Export CMJ and IMTP data from ForceDecks
-2. [ ] Update roster file with current athletes
-3. [ ] Place files in B_Ellis folder
-4. [ ] Run `python generate_real_report.py`
-5. [ ] Review HTML report for quality/errors
-6. [ ] Share with coaching staff
-7. [ ] Archive report with date stamp
-
----
-
-## 🔐 Data Privacy & Security
-
-### Recommendations
-
-- **Do not commit data files to public repositories**
-- Store sensitive data locally or on secure servers
-- Add data files to `.gitignore`:
-  ```
-  *.csv
-  *_REAL.html
-  *_REAL.txt
-  ```
-- Use password protection for HTML reports if emailing
+**Important:**
+- Do NOT commit athlete data to public repositories
+- Data files are listed in `.gitignore` by default
+- Use password protection when emailing HTML reports
 - Follow university FERPA/data protection policies
+- Archive reports securely on Baylor servers
 
 ---
 
-## 📞 Support & Maintenance
+## 📞 Support
 
 ### Getting Help
 
-1. **Check documentation** in this repository first
-2. **Review example files** (demo reports, mockups)
-3. **Test with demo data** to isolate issues
-4. **Contact sports science team** for Baylor-specific questions
+1. Check **STREAMLIT_QUICK_START.md** for detailed instructions
+2. Review **Force_Plate_Training_Report_Design.md** for system details
+3. Contact Baylor Sports Science team for assistance
+4. Contact IT for installation/deployment issues
 
-### System Maintenance
+### Common Questions
 
-**Monthly:**
-- Review report accuracy with coaching feedback
-- Update roster file with new athletes
-- Archive previous reports
+**Q: Can I use this for multiple teams?**
+A: Yes! Just upload different roster files and data for each team.
 
-**Quarterly:**
-- Validate SWC thresholds against outcomes
-- Review athlete categorization accuracy
-- Update recommendations based on staff input
+**Q: How do I share reports with assistant coaches?**
+A: Download the HTML file and email it. Opens in any browser.
 
-**Annually:**
-- Full system audit
-- Update decision rules if needed
-- Retrain staff on any changes
+**Q: Can this run on a server for the whole staff?**
+A: Yes! Streamlit apps can be deployed to cloud or local servers. Contact IT.
 
----
+**Q: What if I only have CMJ or only IMTP data?**
+A: The app will analyze whatever data you provide, but results are best with both.
 
-## 🚀 Future Enhancements
-
-**Potential additions:**
-- Automated email distribution
-- Integration with training management software
-- Longitudinal tracking dashboards
-- Predictive injury risk modeling
-- Mobile app for coaches
-- Multi-sport expansion
+**Q: How do I create PDFs?**
+A: View the HTML report in your browser, then File → Print → Save as PDF.
 
 ---
 
-## 📄 License & Attribution
+## 🚀 Deployment Options
 
-**Built for:** Baylor University Athletics - B.A.I.R. Initiative
+### Option 1: Run Locally (Current)
+
+Each coach runs on their own computer:
+```bash
+streamlit run generate_report_app.py
+```
+
+### Option 2: Deploy to Streamlit Cloud (Free)
+
+1. Push code to GitHub
+2. Go to https://share.streamlit.io
+3. Connect GitHub and deploy
+4. Share URL with coaching staff
+
+### Option 3: Deploy to Baylor Server
+
+Contact Baylor IT to host on internal server:
+- Accessible via Baylor network
+- No installation needed for coaches
+- Single URL for entire staff
+
+---
+
+## 📄 License & Credits
+
+**Built for:** Baylor University Athletics
+**Initiative:** B.A.I.R. (Baylor A.I.R.)
 **Created:** November 2024
 **System Design:** Force plate decision framework based on SWC methodology
-**Report Generation:** Automated Python-based analysis pipeline
 
-For questions or contributions, contact the Baylor Sports Science team.
+**Version:** 1.0 - Streamlit Web App
+
+For questions or support, contact the Baylor Sports Science Team.
