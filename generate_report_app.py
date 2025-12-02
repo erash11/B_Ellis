@@ -171,6 +171,24 @@ SEVERITY_THRESHOLDS = {
     'yellow': 1.0
 }
 
+# Position group mappings
+POSITION_GROUPS = {
+    'Skill': ['WR', 'CB', 'S', 'RB'],
+    'Mid': ['QB', 'TE', 'OLB', 'MLB', 'SPEC'],
+    'Big': ['OL', 'DL']
+}
+
+def get_position_group(position):
+    """Map position to position group"""
+    if pd.isna(position) or position == '':
+        return 'Unknown'
+
+    position = str(position).upper().strip()
+    for group, positions in POSITION_GROUPS.items():
+        if position in positions:
+            return group
+    return 'Unknown'
+
 # ============================================================================
 # DATA PROCESSING FUNCTIONS
 # ============================================================================
@@ -279,19 +297,25 @@ def classify_severity(deviation, swc):
     return 'normal', '🟢'
 
 def categorize_athletes(df):
-    """Categorize athletes based on trends"""
-    results = {'categories': {}}
+    """Categorize athletes based on trends - organized by athlete rather than category"""
+    athlete_results = {}
     athletes = df['Athlete_Name'].unique()
 
-    for cat_num, rule in DECISION_RULES.items():
-        category_athletes = []
+    # Check each athlete against all categories
+    for athlete in athletes:
+        athlete_data = df[df['Athlete_Name'] == athlete].sort_values('Date')
 
-        for athlete in athletes:
-            athlete_data = df[df['Athlete_Name'] == athlete].sort_values('Date')
+        if len(athlete_data) < 5:
+            continue
 
-            if len(athlete_data) < 5:
-                continue
+        # Get athlete position info
+        position = athlete_data['Position'].iloc[-1] if 'Position' in athlete_data.columns and pd.notna(athlete_data['Position'].iloc[-1]) else ''
+        position_group = get_position_group(position)
 
+        flagged_categories = []
+
+        # Check each category
+        for cat_num, rule in DECISION_RULES.items():
             all_flagged = True
             worst_severity = 'normal'
             sev_order = {'critical': 0, 'warning': 1, 'caution': 2, 'normal': 3}
@@ -339,42 +363,66 @@ def categorize_athletes(df):
                     worst_severity = severity
 
             if all_flagged:
-                pos = athlete_data['Position'].iloc[-1] if 'Position' in athlete_data.columns and pd.notna(athlete_data['Position'].iloc[-1]) else ''
-
-                category_athletes.append({
-                    'name': athlete,
-                    'position': pos,
+                flagged_categories.append({
+                    'cat_num': cat_num,
+                    'name': rule['name'],
                     'severity': worst_severity,
-                    'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity]
+                    'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity],
+                    'wr_suggestions': rule['wr_suggestions'],
+                    'field_suggestions': rule['field_suggestions'],
+                    'interpretation': rule['interpretation'],
+                    'execution_note': rule['execution_note']
                 })
 
-        category_athletes.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
+        # Only add athlete if they have flagged categories
+        if flagged_categories:
+            # Sort categories by severity (most severe first)
+            flagged_categories.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
 
-        if category_athletes:
-            results['categories'][cat_num] = {
-                'name': rule['name'],
-                'trend_desc': rule['trend_desc'],
-                'athletes': category_athletes,
-                'count': len(category_athletes),
-                'critical': sum(1 for a in category_athletes if a['severity'] == 'critical'),
-                'warning': sum(1 for a in category_athletes if a['severity'] == 'warning'),
-                'caution': sum(1 for a in category_athletes if a['severity'] == 'caution'),
-                'wr_suggestions': rule['wr_suggestions'],
-                'field_suggestions': rule['field_suggestions'],
-                'interpretation': rule['interpretation'],
-                'execution_note': rule['execution_note']
+            athlete_results[athlete] = {
+                'position': position,
+                'position_group': position_group,
+                'flagged_categories': flagged_categories
             }
 
-    return results
+    # Group athletes by position group
+    position_group_results = {
+        'Skill': [],
+        'Mid': [],
+        'Big': [],
+        'Unknown': []
+    }
+
+    for athlete, data in athlete_results.items():
+        position_group_results[data['position_group']].append({
+            'name': athlete,
+            'position': data['position'],
+            'flagged_categories': data['flagged_categories']
+        })
+
+    # Sort athletes within each group by name
+    for group in position_group_results:
+        position_group_results[group].sort(key=lambda x: x['name'])
+
+    return {
+        'athletes': athlete_results,
+        'position_groups': position_group_results
+    }
 
 def generate_html_report(results, df, team_name, training_phase, next_phase):
-    """Generate HTML report"""
+    """Generate HTML report grouped by position"""
 
     total_athletes = df['Athlete_Name'].nunique()
-    total_flagged = len(set([a['name'] for cat in results['categories'].values() for a in cat['athletes']]))
-    categories_flagged = len(results['categories'])
+    total_flagged = len(results['athletes'])
     data_window = f"{df['Date'].min().date()} to {df['Date'].max().date()}"
     report_date = datetime.now()
+
+    # Count unique categories flagged across all athletes
+    all_categories = set()
+    for athlete_data in results['athletes'].values():
+        for cat in athlete_data['flagged_categories']:
+            all_categories.add(cat['cat_num'])
+    categories_flagged = len(all_categories)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -385,7 +433,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; padding: 20px; color: #333; }}
-        .page {{ max-width: 1200px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+        .page {{ max-width: 1400px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
         .header {{ border-bottom: 4px solid #1B5E20; padding-bottom: 20px; margin-bottom: 30px; }}
         .header h1 {{ color: #1B5E20; font-size: 32px; margin-bottom: 15px; }}
         .header-info {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #f8f9fa; padding: 15px; border-radius: 5px; }}
@@ -393,32 +441,36 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         .header-info strong {{ color: #1B5E20; min-width: 150px; }}
         .summary-box {{ background: #E3F2FD; border-left: 5px solid #1976D2; padding: 20px; margin: 20px 0; border-radius: 5px; }}
         .summary-box h2 {{ color: #1976D2; font-size: 18px; margin-bottom: 10px; }}
-        .category-card {{ border: 2px solid #e0e0e0; border-radius: 8px; margin: 25px 0; overflow: hidden; page-break-inside: avoid; }}
-        .category-header {{ background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%); color: white; padding: 20px; }}
-        .category-header h3 {{ font-size: 22px; margin-bottom: 8px; }}
-        .category-header p {{ opacity: 0.9; font-size: 14px; }}
-        .category-body {{ padding: 20px; }}
-        .recommendations {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }}
-        .rec-section h4 {{ color: #1B5E20; font-size: 16px; margin-bottom: 12px; }}
-        .rec-section ul {{ list-style: none; padding-left: 0; }}
-        .rec-section li {{ padding: 8px 0 8px 25px; position: relative; line-height: 1.5; }}
-        .rec-section li:before {{ content: "→"; position: absolute; left: 0; color: #1B5E20; font-weight: bold; }}
-        .athletes-section {{ background: #fafafa; padding: 20px; border-radius: 5px; margin-top: 20px; }}
-        .athletes-section h4 {{ color: #1B5E20; font-size: 16px; margin-bottom: 15px; }}
-        .athlete-list {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }}
-        .athlete-item {{ padding: 12px 15px; border-radius: 5px; display: flex; align-items: center; gap: 10px; font-size: 14px; }}
-        .athlete-item.critical {{ background: #FFEBEE; border-left: 4px solid #C62828; }}
-        .athlete-item.warning {{ background: #FFF3E0; border-left: 4px solid #EF6C00; }}
-        .athlete-item.caution {{ background: #FFFDE7; border-left: 4px solid #F57F17; }}
-        .emoji {{ font-size: 18px; }}
-        .athlete-name {{ font-weight: 600; }}
-        .athlete-detail {{ color: #666; font-size: 12px; }}
-        .distribution {{ margin-top: 15px; padding: 15px; background: white; border-radius: 5px; display: flex; gap: 20px; flex-wrap: wrap; }}
-        .dist-item {{ display: flex; align-items: center; gap: 8px; }}
-        .interpretation-box {{ background: #E8F5E9; border-left: 4px solid #4CAF50; padding: 15px; margin-top: 15px; border-radius: 5px; }}
-        .interpretation-box strong {{ color: #1B5E20; }}
-        .execution-box {{ background: #E3F2FD; border-left: 4px solid #2196F3; padding: 15px; margin-top: 15px; border-radius: 5px; }}
-        .execution-box strong {{ color: #1565C0; }}
+
+        /* Position group styling */
+        .position-group {{ border: 2px solid #e0e0e0; border-radius: 8px; margin: 25px 0; overflow: hidden; page-break-inside: avoid; }}
+        .position-header {{ background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%); color: white; padding: 15px 20px; }}
+        .position-header h3 {{ font-size: 20px; margin: 0; }}
+        .position-body {{ padding: 20px; }}
+
+        /* Athlete row styling */
+        .athlete-row {{ display: grid; grid-template-columns: 200px 1fr; gap: 15px; padding: 12px 0; border-bottom: 1px solid #e0e0e0; align-items: start; }}
+        .athlete-row:last-child {{ border-bottom: none; }}
+        .athlete-info {{ display: flex; flex-direction: column; }}
+        .athlete-name {{ font-weight: 600; font-size: 15px; color: #1B5E20; }}
+        .athlete-position {{ font-size: 13px; color: #666; margin-top: 2px; }}
+
+        /* Category badges */
+        .category-badges {{ display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }}
+        .category-badge {{ display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; }}
+        .category-badge.critical {{ background: #FFEBEE; border-left: 3px solid #C62828; color: #C62828; }}
+        .category-badge.warning {{ background: #FFF3E0; border-left: 3px solid #EF6C00; color: #EF6C00; }}
+        .category-badge.caution {{ background: #FFFDE7; border-left: 3px solid #F57F17; color: #F57F17; }}
+        .category-num {{ font-weight: 600; }}
+        .category-name {{ font-weight: 500; }}
+
+        /* Legend */
+        .legend {{ background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+        .legend h4 {{ font-size: 14px; margin-bottom: 10px; color: #1B5E20; }}
+        .legend-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; font-size: 13px; }}
+        .legend-item {{ padding: 5px 0; }}
+        .legend-num {{ font-weight: 600; color: #1B5E20; display: inline-block; min-width: 20px; }}
+
         .footer {{ margin-top: 40px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center; color: #666; font-size: 14px; }}
         @media print {{ .page {{ box-shadow: none; }} }}
     </style>
@@ -440,79 +492,62 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         <div class="summary-box">
             <h2>EXECUTIVE SUMMARY</h2>
             <p><strong>{categories_flagged} categories flagged</strong> with <strong>{total_flagged} total athletes</strong> needing intervention ({total_flagged/total_athletes*100:.0f}% of roster)</p>
-            <p style="margin-top: 10px;">Recommendations based on force plate testing data. Focus on execution-style modifications for next training phase.</p>
+            <p style="margin-top: 10px;">Athletes are grouped by position and show their flagged developmental categories.</p>
+        </div>
+
+        <div class="legend">
+            <h4>DEVELOPMENTAL CATEGORY LEGEND:</h4>
+            <div class="legend-grid">
+"""
+
+    # Add category legend
+    for cat_num, rule in sorted(DECISION_RULES.items()):
+        html += f'                <div class="legend-item"><span class="legend-num">{cat_num}.</span> {rule["name"]}</div>\n'
+
+    html += """            </div>
         </div>
 """
 
-    # Add category cards
-    for cat_num in sorted(results['categories'].keys()):
-        cat_data = results['categories'][cat_num]
+    # Add position groups
+    for group_name in ['Skill', 'Mid', 'Big']:
+        group_athletes = results['position_groups'][group_name]
+
+        if not group_athletes:
+            continue
+
+        # Get position list for this group
+        position_list = ', '.join(POSITION_GROUPS[group_name])
 
         html += f"""
-        <div class="category-card">
-            <div class="category-header">
-                <h3>CATEGORY {cat_num}: {cat_data['name']}</h3>
-                <p>Trend: {cat_data['trend_desc']}</p>
+        <div class="position-group">
+            <div class="position-header">
+                <h3>{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged</h3>
             </div>
-            <div class="category-body">
-                <div class="recommendations">
-                    <div class="rec-section">
-                        <h4>WEIGHT ROOM RECOMMENDATIONS:</h4>
-                        <ul>
+            <div class="position-body">
 """
 
-        for sug in cat_data['wr_suggestions']:
-            html += f"                            <li>{sug}</li>\n"
-
-        html += """                        </ul>
+        for athlete in group_athletes:
+            html += f"""                <div class="athlete-row">
+                    <div class="athlete-info">
+                        <div class="athlete-name">{athlete['name']}</div>
+                        <div class="athlete-position">{athlete['position']}</div>
                     </div>
-                    <div class="rec-section">
-                        <h4>FIELD RECOMMENDATIONS:</h4>
-                        <ul>
+                    <div class="category-badges">
 """
 
-        for sug in cat_data['field_suggestions']:
-            html += f"                            <li>{sug}</li>\n"
-
-        html += f"""                        </ul>
-                    </div>
-                </div>
-
-                <div class="athletes-section">
-                    <h4>ATHLETES IN THIS CATEGORY: {cat_data['count']}</h4>
-                    <div class="athlete-list">
-"""
-
-        for athlete in cat_data['athletes']:
-            pos_str = f"{athlete['position']} - " if athlete['position'] else ""
-            detail = f"{pos_str}{athlete['severity'].title()}"
-
-            html += f"""                        <div class="athlete-item {athlete['severity']}">
-                            <span class="emoji">{athlete['emoji']}</span>
-                            <div>
-                                <div class="athlete-name">{athlete['name']}</div>
-                                <div class="athlete-detail">{detail}</div>
-                            </div>
+            for cat in athlete['flagged_categories']:
+                html += f"""                        <div class="category-badge {cat['severity']}">
+                            <span class="emoji">{cat['emoji']}</span>
+                            <span class="category-num">{cat['cat_num']}.</span>
+                            <span class="category-name">{cat['name']}</span>
                         </div>
 """
 
-        html += f"""                    </div>
-
-                    <div class="distribution">
-                        <div class="dist-item"><strong>{cat_data['critical']} Critical</strong></div>
-                        <div class="dist-item"><strong>{cat_data['warning']} Warning</strong></div>
-                        <div class="dist-item"><strong>{cat_data['caution']} Caution</strong></div>
-                    </div>
+            html += """                    </div>
                 </div>
+"""
 
-                <div class="interpretation-box">
-                    <strong>INTERPRETATION:</strong> {cat_data['interpretation']}
-                </div>
-
-                <div class="execution-box">
-                    <strong>EXECUTION NOTE:</strong> {cat_data['execution_note']}
-                </div>
-            </div>
+        html += """            </div>
         </div>
 """
 
@@ -530,11 +565,17 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
     return html
 
 def generate_text_report(results, df, team_name, training_phase):
-    """Generate text report"""
+    """Generate text report grouped by position"""
 
     total_athletes = df['Athlete_Name'].nunique()
-    total_flagged = len(set([a['name'] for cat in results['categories'].values() for a in cat['athletes']]))
-    categories_flagged = len(results['categories'])
+    total_flagged = len(results['athletes'])
+
+    # Count unique categories
+    all_categories = set()
+    for athlete_data in results['athletes'].values():
+        for cat in athlete_data['flagged_categories']:
+            all_categories.add(cat['cat_num'])
+    categories_flagged = len(all_categories)
 
     report = []
     report.append("="*80)
@@ -552,30 +593,35 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append(f"  Categories Flagged: {categories_flagged}")
     report.append("")
 
-    for cat_num in sorted(results['categories'].keys()):
-        cat_data = results['categories'][cat_num]
+    report.append("\nDEVELOPMENTAL CATEGORY LEGEND:")
+    for cat_num, rule in sorted(DECISION_RULES.items()):
+        report.append(f"  {cat_num}. {rule['name']}")
+    report.append("")
+
+    # Report by position groups
+    for group_name in ['Skill', 'Mid', 'Big']:
+        group_athletes = results['position_groups'][group_name]
+
+        if not group_athletes:
+            continue
+
+        position_list = ', '.join(POSITION_GROUPS[group_name])
 
         report.append("\n" + "="*80)
-        report.append(f"CATEGORY {cat_num}: {cat_data['name']}")
+        report.append(f"{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged")
         report.append("="*80)
-        report.append(f"Trend: {cat_data['trend_desc']}")
 
-        report.append("\nWEIGHT ROOM RECOMMENDATIONS:")
-        for suggestion in cat_data['wr_suggestions']:
-            report.append(f"  • {suggestion}")
+        for athlete in group_athletes:
+            report.append(f"\n  {athlete['name']} ({athlete['position']})")
 
-        report.append("\nFIELD RECOMMENDATIONS:")
-        for suggestion in cat_data['field_suggestions']:
-            report.append(f"  • {suggestion}")
+            # List flagged categories
+            cat_strs = []
+            for cat in athlete['flagged_categories']:
+                cat_strs.append(f"{cat['emoji']} {cat['cat_num']}. {cat['name']} ({cat['severity'].title()})")
 
-        report.append(f"\nATHLETES IN THIS CATEGORY: {cat_data['count']}")
-        for athlete in cat_data['athletes']:
-            pos_str = f", {athlete['position']}" if athlete['position'] else ""
-            report.append(f"  {athlete['emoji']} {athlete['name']}{pos_str} - {athlete['severity'].title()}")
+            for cat_str in cat_strs:
+                report.append(f"    {cat_str}")
 
-        report.append(f"\n  Distribution: {cat_data['critical']} Critical | {cat_data['warning']} Warning | {cat_data['caution']} Caution")
-        report.append(f"\nINTERPRETATION: {cat_data['interpretation']}")
-        report.append(f"\nEXECUTION NOTE: {cat_data['execution_note']}")
         report.append("")
 
     report.append("\n" + "="*80)
@@ -727,8 +773,15 @@ def main():
 
             with st.spinner("Categorizing athletes and analyzing trends..."):
                 results = categorize_athletes(filtered_df)
-                total_flagged = len(set([a['name'] for cat in results['categories'].values() for a in cat['athletes']]))
-                st.success(f"Found {len(results['categories'])} categories with {total_flagged} athletes flagged")
+                total_flagged = len(results['athletes'])
+
+                # Count unique categories flagged
+                all_categories = set()
+                for athlete_data in results['athletes'].values():
+                    for cat in athlete_data['flagged_categories']:
+                        all_categories.add(cat['cat_num'])
+
+                st.success(f"Found {len(all_categories)} categories with {total_flagged} athletes flagged")
 
             with st.spinner("Generating reports..."):
                 html_report = generate_html_report(results, filtered_df, team_name, training_phase, next_phase)
