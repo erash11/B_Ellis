@@ -36,6 +36,7 @@ st.set_page_config(
 DECISION_RULES = {
     1: {
         'name': 'MAXIMAL STRENGTH CAPACITY',
+        'short_name': 'Maximal Strength',
         'trend_desc': 'IMTP Peak Force and Net Peak Vertical Force declining',
         'metrics': ['IMTP_Peak_Force', 'IMTP_Net_Peak_Force'],
         'trend': 'decrease',
@@ -55,6 +56,7 @@ DECISION_RULES = {
     },
     2: {
         'name': 'EXPLOSIVE STRENGTH / RFD',
+        'short_name': 'Explosive/RFD',
         'trend_desc': 'Early-phase RFD (50-200ms) declining',
         'metrics': ['IMTP_Force_50ms', 'IMTP_Force_100ms', 'IMTP_Force_200ms'],
         'trend': 'decrease',
@@ -73,6 +75,7 @@ DECISION_RULES = {
     },
     3: {
         'name': 'POWER OUTPUT',
+        'short_name': 'Power Output',
         'trend_desc': 'Peak Power declining',
         'metrics': ['CMJ_Peak_Power'],
         'trend': 'decrease',
@@ -91,6 +94,7 @@ DECISION_RULES = {
     },
     4: {
         'name': 'SSC EFFICIENCY',
+        'short_name': 'SSC Efficiency',
         'trend_desc': 'RSI-modified and Eccentric Braking RFD declining',
         'metrics': ['CMJ_RSI_modified', 'CMJ_Eccentric_Braking_RFD'],
         'trend': 'decrease',
@@ -108,6 +112,7 @@ DECISION_RULES = {
     },
     5: {
         'name': 'ECCENTRIC CONTROL & BRAKING',
+        'short_name': 'Eccentric Control',
         'trend_desc': 'Eccentric braking force declining',
         'metrics': ['CMJ_Eccentric_Mean_Braking_Force'],
         'trend': 'decrease',
@@ -126,6 +131,7 @@ DECISION_RULES = {
     },
     6: {
         'name': 'TECHNICAL / COORDINATION',
+        'short_name': 'Technical',
         'trend_desc': 'Contraction Time and Time to Peak Force increasing',
         'metrics': ['CMJ_Contraction_Time', 'IMTP_Time_to_Peak_Force'],
         'trend': 'increase',
@@ -145,6 +151,7 @@ DECISION_RULES = {
     },
     7: {
         'name': 'ASYMMETRY / LIMB IMBALANCE',
+        'short_name': 'Asymmetry',
         'trend_desc': 'L-R Force Asymmetry > 10%',
         'metrics': ['IMTP_Asymmetry'],
         'trend': 'absolute',
@@ -366,6 +373,7 @@ def categorize_athletes(df):
                 flagged_categories.append({
                     'cat_num': cat_num,
                     'name': rule['name'],
+                    'short_name': rule['short_name'],
                     'severity': worst_severity,
                     'emoji': {'critical': '🔴', 'warning': '🟠', 'caution': '🟡'}[worst_severity],
                     'wr_suggestions': rule['wr_suggestions'],
@@ -492,12 +500,11 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         .athlete-position {{ font-size: 13px; color: #666; margin-top: 2px; }}
 
         /* Category badges */
-        .category-badges {{ display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }}
-        .category-badge {{ display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; }}
-        .category-badge.critical {{ background: #FFEBEE; border-left: 3px solid #C62828; color: #C62828; }}
-        .category-badge.warning {{ background: #FFF3E0; border-left: 3px solid #EF6C00; color: #EF6C00; }}
-        .category-badge.caution {{ background: #FFFDE7; border-left: 3px solid #F57F17; color: #F57F17; }}
-        .category-num {{ font-weight: 600; }}
+        .category-badges {{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }}
+        .category-badge {{ display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 3px; font-size: 12px; white-space: nowrap; }}
+        .category-badge.critical {{ background: #FFEBEE; border-left: 3px solid #C62828; color: #C62828; font-weight: 500; }}
+        .category-badge.warning {{ background: #FFF3E0; border-left: 3px solid #EF6C00; color: #EF6C00; font-weight: 500; }}
+        .category-badge.caution {{ background: #FFFDE7; border-left: 3px solid #F57F17; color: #F57F17; font-weight: 500; }}
         .category-name {{ font-weight: 500; }}
 
         /* Legend */
@@ -677,9 +684,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
 
             for cat in athlete['flagged_categories']:
                 html += f"""                        <div class="category-badge {cat['severity']}">
-                            <span class="emoji">{cat['emoji']}</span>
-                            <span class="category-num">{cat['cat_num']}.</span>
-                            <span class="category-name">{cat['name']}</span>
+                            <span class="category-name">{cat['short_name']}</span>
                         </div>
 """
 
@@ -822,10 +827,10 @@ def generate_text_report(results, df, team_name, training_phase):
         for athlete in group_athletes:
             report.append(f"\n  {athlete['name']} ({athlete['position']})")
 
-            # List flagged categories
+            # List flagged categories (abbreviated)
             cat_strs = []
             for cat in athlete['flagged_categories']:
-                cat_strs.append(f"{cat['emoji']} {cat['cat_num']}. {cat['name']} ({cat['severity'].title()})")
+                cat_strs.append(f"  • {cat['short_name']} ({cat['severity'].title()})")
 
             for cat_str in cat_strs:
                 report.append(f"    {cat_str}")
