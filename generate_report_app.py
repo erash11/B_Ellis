@@ -954,9 +954,9 @@ def main():
     # Footer
     st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; color: #666; font-size: 12px;'>
+    <div style='text-align: center; color: #667; font-size: 12px;'>
         <p>Force Plate Training Report System | Baylor University Athletics</p>
-        <p>Report Generation v1.0 | November 2024</p>
+        <p>Report Generation v1.0 | November 2025</p>
     </div>
     """, unsafe_allow_html=True)
 
