@@ -490,6 +490,13 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         .position-group {{ border: 2px solid #e0e0e0; border-radius: 8px; margin: 25px 0; overflow: hidden; page-break-inside: avoid; }}
         .position-header {{ background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%); color: white; padding: 15px 20px; }}
         .position-header h3 {{ font-size: 20px; margin: 0; }}
+        .position-summary {{ background: #E3F2FD; border-left: 5px solid #1976D2; padding: 15px 20px; margin: 0; }}
+        .position-summary-stats {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 10px; }}
+        .position-summary-stat {{ display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }}
+        .position-summary-stat strong {{ color: #333; }}
+        .position-summary-categories {{ margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); }}
+        .position-summary-categories strong {{ display: block; margin-bottom: 5px; font-size: 13px; }}
+        .position-summary-cat-item {{ font-size: 12px; padding: 2px 0; }}
         .position-body {{ padding: 20px; }}
 
         /* Athlete row styling */
@@ -545,48 +552,6 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
                 <div><strong>Next Phase:</strong> <span>{next_phase}</span></div>
                 <div><strong>Total Athletes:</strong> <span>{total_athletes}</span></div>
             </div>
-        </div>
-
-        <div class="summary-box">
-            <h2>EXECUTIVE SUMMARIES BY POSITION GROUP</h2>
-            <div class="summary-grid">
-"""
-
-    # Add executive summary for each position group
-    for group_name in ['Skill', 'Mid', 'Big']:
-        stats = position_group_stats[group_name]
-        position_list = ', '.join(POSITION_GROUPS[group_name])
-        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
-
-        html += f"""
-                <div class="summary-card">
-                    <h3>{group_name.upper()} POSITIONS</h3>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">{position_list}</div>
-                    <div class="summary-stat">
-                        <span>Total Athletes:</span>
-                        <strong>{stats['total']}</strong>
-                    </div>
-                    <div class="summary-stat">
-                        <span>Athletes Flagged:</span>
-                        <strong>{stats['flagged']} ({pct:.0f}%)</strong>
-                    </div>
-"""
-
-        if stats['category_counts']:
-            html += """                    <div class="category-breakdown">
-                        <strong>Categories Flagged:</strong>
-"""
-            for cat_num in sorted(stats['category_counts'].keys()):
-                count = stats['category_counts'][cat_num]
-                html += f"""                        <div class="category-breakdown-item">• Cat {cat_num}: {count} athletes</div>
-"""
-            html += """                    </div>
-"""
-
-        html += """                </div>
-"""
-
-    html += """            </div>
         </div>
 
         <div class="legend">
@@ -664,12 +629,40 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
 
         # Get position list for this group
         position_list = ', '.join(POSITION_GROUPS[group_name])
+        stats = position_group_stats[group_name]
+        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
 
         html += f"""
         <div class="position-group">
             <div class="position-header">
-                <h3>{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged</h3>
+                <h3>{group_name.upper()} POSITIONS ({position_list})</h3>
             </div>
+            <div class="position-summary">
+                <div class="position-summary-stats">
+                    <div class="position-summary-stat">
+                        <span>Total Athletes:</span>
+                        <strong>{stats['total']}</strong>
+                    </div>
+                    <div class="position-summary-stat">
+                        <span>Athletes Flagged:</span>
+                        <strong>{stats['flagged']} ({pct:.0f}%)</strong>
+                    </div>
+                </div>
+"""
+
+        if stats['category_counts']:
+            html += """                <div class="position-summary-categories">
+                    <strong>Categories Flagged in this Group:</strong>
+"""
+            for cat_num in sorted(stats['category_counts'].keys()):
+                count = stats['category_counts'][cat_num]
+                cat_name = DECISION_RULES[cat_num]['short_name']
+                html += f"""                    <div class="position-summary-cat-item">• Cat {cat_num} ({cat_name}): {count} athletes</div>
+"""
+            html += """                </div>
+"""
+
+        html += """            </div>
             <div class="position-body">
 """
 
@@ -757,27 +750,6 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append("-"*80)
 
     report.append("\n" + "="*80)
-    report.append("EXECUTIVE SUMMARIES BY POSITION GROUP".center(80))
-    report.append("="*80)
-
-    for group_name in ['Skill', 'Mid', 'Big']:
-        stats = position_group_stats[group_name]
-        position_list = ', '.join(POSITION_GROUPS[group_name])
-        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
-
-        report.append(f"\n{group_name.upper()} POSITIONS ({position_list})")
-        report.append("-"*80)
-        report.append(f"  Total Athletes: {stats['total']}")
-        report.append(f"  Athletes Flagged: {stats['flagged']} ({pct:.0f}%)")
-
-        if stats['category_counts']:
-            report.append(f"\n  Categories Flagged:")
-            for cat_num in sorted(stats['category_counts'].keys()):
-                count = stats['category_counts'][cat_num]
-                report.append(f"    • Cat {cat_num}: {count} athletes")
-        report.append("")
-
-    report.append("\n" + "="*80)
     report.append("DEVELOPMENTAL CATEGORY LEGEND".center(80))
     report.append("="*80)
     for cat_num, rule in sorted(DECISION_RULES.items()):
@@ -820,10 +792,25 @@ def generate_text_report(results, df, team_name, training_phase):
             continue
 
         position_list = ', '.join(POSITION_GROUPS[group_name])
+        stats = position_group_stats[group_name]
+        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
 
-        report.append(f"\n{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged")
+        report.append(f"\n{group_name.upper()} POSITIONS ({position_list})")
         report.append("-"*80)
 
+        # Position-specific executive summary
+        report.append(f"\nEXECUTIVE SUMMARY:")
+        report.append(f"  Total Athletes: {stats['total']}")
+        report.append(f"  Athletes Flagged: {stats['flagged']} ({pct:.0f}%)")
+
+        if stats['category_counts']:
+            report.append(f"\n  Categories Flagged in this Group:")
+            for cat_num in sorted(stats['category_counts'].keys()):
+                count = stats['category_counts'][cat_num]
+                cat_name = DECISION_RULES[cat_num]['short_name']
+                report.append(f"    • Cat {cat_num} ({cat_name}): {count} athletes")
+
+        report.append(f"\nFLAGGED ATHLETES:")
         for athlete in group_athletes:
             report.append(f"\n  {athlete['name']} ({athlete['position']})")
 
