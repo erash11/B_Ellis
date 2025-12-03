@@ -417,12 +417,15 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
     data_window = f"{df['Date'].min().date()} to {df['Date'].max().date()}"
     report_date = datetime.now()
 
-    # Count unique categories flagged across all athletes
-    all_categories = set()
+    # Count unique categories flagged and athletes per category
+    category_counts = {}
     for athlete_data in results['athletes'].values():
         for cat in athlete_data['flagged_categories']:
-            all_categories.add(cat['cat_num'])
-    categories_flagged = len(all_categories)
+            cat_num = cat['cat_num']
+            if cat_num not in category_counts:
+                category_counts[cat_num] = 0
+            category_counts[cat_num] += 1
+    categories_flagged = len(category_counts)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -471,6 +474,21 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         .legend-item {{ padding: 5px 0; }}
         .legend-num {{ font-weight: 600; color: #1B5E20; display: inline-block; min-width: 20px; }}
 
+        /* Training recommendations section */
+        .recommendations-section {{ margin: 40px 0; }}
+        .recommendations-title {{ color: #1B5E20; font-size: 24px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #1B5E20; }}
+        .category-recommendations {{ border: 2px solid #e0e0e0; border-radius: 8px; margin: 20px 0; overflow: hidden; page-break-inside: avoid; }}
+        .category-rec-header {{ background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%); color: white; padding: 12px 20px; }}
+        .category-rec-header h4 {{ font-size: 16px; margin: 0; }}
+        .category-rec-body {{ padding: 20px; }}
+        .rec-columns {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }}
+        .rec-column h5 {{ color: #1B5E20; font-size: 14px; margin-bottom: 10px; }}
+        .rec-column ul {{ list-style: none; padding-left: 0; margin: 0; }}
+        .rec-column li {{ padding: 6px 0 6px 20px; position: relative; line-height: 1.4; font-size: 13px; }}
+        .rec-column li:before {{ content: "→"; position: absolute; left: 0; color: #1B5E20; font-weight: bold; }}
+        .rec-note {{ background: #E8F5E9; padding: 12px; border-left: 3px solid #4CAF50; margin-top: 15px; border-radius: 3px; font-size: 13px; }}
+        .rec-note strong {{ color: #1B5E20; }}
+
         .footer {{ margin-top: 40px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center; color: #666; font-size: 14px; }}
         @media print {{ .page {{ box-shadow: none; }} }}
     </style>
@@ -493,6 +511,19 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
             <h2>EXECUTIVE SUMMARY</h2>
             <p><strong>{categories_flagged} categories flagged</strong> with <strong>{total_flagged} total athletes</strong> needing intervention ({total_flagged/total_athletes*100:.0f}% of roster)</p>
             <p style="margin-top: 10px;">Athletes are grouped by position and show their flagged developmental categories.</p>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <strong>Athletes per Category:</strong>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 8px; font-size: 14px;">
+"""
+
+    # Add category breakdown
+    for cat_num in sorted(category_counts.keys()):
+        count = category_counts[cat_num]
+        cat_name = DECISION_RULES[cat_num]['name']
+        html += f'                    <div>• Cat {cat_num} ({cat_name}): <strong>{count} athletes</strong></div>\n'
+
+    html += """                </div>
+            </div>
         </div>
 
         <div class="legend">
@@ -551,6 +582,57 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         </div>
 """
 
+    # Add training recommendations section
+    html += """
+        <div class="recommendations-section">
+            <h2 class="recommendations-title">TRAINING RECOMMENDATIONS BY CATEGORY</h2>
+"""
+
+    for cat_num in sorted(category_counts.keys()):
+        rule = DECISION_RULES[cat_num]
+        count = category_counts[cat_num]
+
+        html += f"""
+            <div class="category-recommendations">
+                <div class="category-rec-header">
+                    <h4>CATEGORY {cat_num}: {rule['name'].upper()} ({count} athletes flagged)</h4>
+                </div>
+                <div class="category-rec-body">
+                    <div class="rec-columns">
+                        <div class="rec-column">
+                            <h5>WEIGHT ROOM RECOMMENDATIONS:</h5>
+                            <ul>
+"""
+
+        for suggestion in rule['wr_suggestions']:
+            html += f"                                <li>{suggestion}</li>\n"
+
+        html += """                            </ul>
+                        </div>
+                        <div class="rec-column">
+                            <h5>FIELD RECOMMENDATIONS:</h5>
+                            <ul>
+"""
+
+        for suggestion in rule['field_suggestions']:
+            html += f"                                <li>{suggestion}</li>\n"
+
+        html += f"""                            </ul>
+                        </div>
+                    </div>
+                    <div class="rec-note">
+                        <strong>Interpretation:</strong> {rule['interpretation']}
+                    </div>
+                    <div class="rec-note" style="background: #E3F2FD; border-left-color: #2196F3;">
+                        <strong>Execution Note:</strong> {rule['execution_note']}
+                    </div>
+                </div>
+            </div>
+"""
+
+    html += """        </div>
+"""
+
     html += f"""
         <div class="footer">
             <p><strong>Report generated:</strong> {report_date.strftime('%B %d, %Y at %I:%M %p')}</p>
@@ -570,12 +652,15 @@ def generate_text_report(results, df, team_name, training_phase):
     total_athletes = df['Athlete_Name'].nunique()
     total_flagged = len(results['athletes'])
 
-    # Count unique categories
-    all_categories = set()
+    # Count unique categories and athletes per category
+    category_counts = {}
     for athlete_data in results['athletes'].values():
         for cat in athlete_data['flagged_categories']:
-            all_categories.add(cat['cat_num'])
-    categories_flagged = len(all_categories)
+            cat_num = cat['cat_num']
+            if cat_num not in category_counts:
+                category_counts[cat_num] = 0
+            category_counts[cat_num] += 1
+    categories_flagged = len(category_counts)
 
     report = []
     report.append("="*80)
@@ -591,6 +676,13 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append(f"  Total Athletes: {total_athletes}")
     report.append(f"  Athletes Flagged: {total_flagged} ({total_flagged/total_athletes*100:.0f}%)")
     report.append(f"  Categories Flagged: {categories_flagged}")
+    report.append("")
+
+    report.append("\nATHLETES PER CATEGORY:")
+    for cat_num in sorted(category_counts.keys()):
+        count = category_counts[cat_num]
+        cat_name = DECISION_RULES[cat_num]['name']
+        report.append(f"  • Cat {cat_num} ({cat_name}): {count} athletes")
     report.append("")
 
     report.append("\nDEVELOPMENTAL CATEGORY LEGEND:")
@@ -622,6 +714,30 @@ def generate_text_report(results, df, team_name, training_phase):
             for cat_str in cat_strs:
                 report.append(f"    {cat_str}")
 
+        report.append("")
+
+    # Add training recommendations
+    report.append("\n" + "="*80)
+    report.append("TRAINING RECOMMENDATIONS BY CATEGORY".center(80))
+    report.append("="*80)
+
+    for cat_num in sorted(category_counts.keys()):
+        rule = DECISION_RULES[cat_num]
+        count = category_counts[cat_num]
+
+        report.append(f"\nCATEGORY {cat_num}: {rule['name'].upper()} ({count} athletes flagged)")
+        report.append("-"*80)
+
+        report.append("\nWEIGHT ROOM RECOMMENDATIONS:")
+        for suggestion in rule['wr_suggestions']:
+            report.append(f"  → {suggestion}")
+
+        report.append("\nFIELD RECOMMENDATIONS:")
+        for suggestion in rule['field_suggestions']:
+            report.append(f"  → {suggestion}")
+
+        report.append(f"\nINTERPRETATION: {rule['interpretation']}")
+        report.append(f"\nEXECUTION NOTE: {rule['execution_note']}")
         report.append("")
 
     report.append("\n" + "="*80)
