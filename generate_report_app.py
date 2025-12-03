@@ -427,6 +427,31 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
             category_counts[cat_num] += 1
     categories_flagged = len(category_counts)
 
+    # Calculate stats per position group
+    position_group_stats = {}
+    for group_name in ['Skill', 'Mid', 'Big']:
+        # Total athletes in this position group in the dataset
+        group_positions = POSITION_GROUPS[group_name]
+        total_in_group = df[df['Position'].isin(group_positions)]['Athlete_Name'].nunique()
+
+        # Flagged athletes in this position group
+        flagged_in_group = len(results['position_groups'][group_name])
+
+        # Category breakdown for this position group
+        group_category_counts = {}
+        for athlete in results['position_groups'][group_name]:
+            for cat in athlete['flagged_categories']:
+                cat_num = cat['cat_num']
+                if cat_num not in group_category_counts:
+                    group_category_counts[cat_num] = 0
+                group_category_counts[cat_num] += 1
+
+        position_group_stats[group_name] = {
+            'total': total_in_group,
+            'flagged': flagged_in_group,
+            'category_counts': group_category_counts
+        }
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -444,6 +469,14 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         .header-info strong {{ color: #1B5E20; min-width: 150px; }}
         .summary-box {{ background: #E3F2FD; border-left: 5px solid #1976D2; padding: 20px; margin: 20px 0; border-radius: 5px; }}
         .summary-box h2 {{ color: #1976D2; font-size: 18px; margin-bottom: 10px; }}
+        .summary-box h3 {{ color: #1976D2; font-size: 16px; margin: 15px 0 10px 0; }}
+        .summary-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }}
+        .summary-card {{ background: white; border: 2px solid #1976D2; border-radius: 8px; padding: 15px; }}
+        .summary-card h3 {{ color: #1B5E20; font-size: 16px; margin: 0 0 10px 0; border-bottom: 2px solid #1B5E20; padding-bottom: 5px; }}
+        .summary-stat {{ display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }}
+        .summary-stat strong {{ color: #333; }}
+        .category-breakdown {{ margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 13px; }}
+        .category-breakdown-item {{ padding: 3px 0; }}
 
         /* Position group styling */
         .position-group {{ border: 2px solid #e0e0e0; border-radius: 8px; margin: 25px 0; overflow: hidden; page-break-inside: avoid; }}
@@ -508,22 +541,45 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         </div>
 
         <div class="summary-box">
-            <h2>EXECUTIVE SUMMARY</h2>
-            <p><strong>{categories_flagged} categories flagged</strong> with <strong>{total_flagged} total athletes</strong> needing intervention ({total_flagged/total_athletes*100:.0f}% of roster)</p>
-            <p style="margin-top: 10px;">Athletes are grouped by position and show their flagged developmental categories.</p>
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                <strong>Athletes per Category:</strong>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; margin-top: 8px; font-size: 14px;">
+            <h2>EXECUTIVE SUMMARIES BY POSITION GROUP</h2>
+            <div class="summary-grid">
 """
 
-    # Add category breakdown
-    for cat_num in sorted(category_counts.keys()):
-        count = category_counts[cat_num]
-        cat_name = DECISION_RULES[cat_num]['name']
-        html += f'                    <div>• Cat {cat_num} ({cat_name}): <strong>{count} athletes</strong></div>\n'
+    # Add executive summary for each position group
+    for group_name in ['Skill', 'Mid', 'Big']:
+        stats = position_group_stats[group_name]
+        position_list = ', '.join(POSITION_GROUPS[group_name])
+        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
 
-    html += """                </div>
-            </div>
+        html += f"""
+                <div class="summary-card">
+                    <h3>{group_name.upper()} POSITIONS</h3>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 10px;">{position_list}</div>
+                    <div class="summary-stat">
+                        <span>Total Athletes:</span>
+                        <strong>{stats['total']}</strong>
+                    </div>
+                    <div class="summary-stat">
+                        <span>Athletes Flagged:</span>
+                        <strong>{stats['flagged']} ({pct:.0f}%)</strong>
+                    </div>
+"""
+
+        if stats['category_counts']:
+            html += """                    <div class="category-breakdown">
+                        <strong>Categories Flagged:</strong>
+"""
+            for cat_num in sorted(stats['category_counts'].keys()):
+                count = stats['category_counts'][cat_num]
+                html += f"""                        <div class="category-breakdown-item">• Cat {cat_num}: {count} athletes</div>
+"""
+            html += """                    </div>
+"""
+
+        html += """                </div>
+"""
+
+    html += """            </div>
         </div>
 
         <div class="legend">
@@ -539,50 +595,7 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
         </div>
 """
 
-    # Add position groups
-    for group_name in ['Skill', 'Mid', 'Big']:
-        group_athletes = results['position_groups'][group_name]
-
-        if not group_athletes:
-            continue
-
-        # Get position list for this group
-        position_list = ', '.join(POSITION_GROUPS[group_name])
-
-        html += f"""
-        <div class="position-group">
-            <div class="position-header">
-                <h3>{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged</h3>
-            </div>
-            <div class="position-body">
-"""
-
-        for athlete in group_athletes:
-            html += f"""                <div class="athlete-row">
-                    <div class="athlete-info">
-                        <div class="athlete-name">{athlete['name']}</div>
-                        <div class="athlete-position">{athlete['position']}</div>
-                    </div>
-                    <div class="category-badges">
-"""
-
-            for cat in athlete['flagged_categories']:
-                html += f"""                        <div class="category-badge {cat['severity']}">
-                            <span class="emoji">{cat['emoji']}</span>
-                            <span class="category-num">{cat['cat_num']}.</span>
-                            <span class="category-name">{cat['name']}</span>
-                        </div>
-"""
-
-            html += """                    </div>
-                </div>
-"""
-
-        html += """            </div>
-        </div>
-"""
-
-    # Add training recommendations section
+    # Add training recommendations section (moved before athlete lists)
     html += """
         <div class="recommendations-section">
             <h2 class="recommendations-title">TRAINING RECOMMENDATIONS BY CATEGORY</h2>
@@ -631,6 +644,51 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
 """
 
     html += """        </div>
+
+        <h2 style="color: #1B5E20; font-size: 24px; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 3px solid #1B5E20;">FLAGGED ATHLETES BY POSITION</h2>
+"""
+
+    # Add position groups (moved after recommendations)
+    for group_name in ['Skill', 'Mid', 'Big']:
+        group_athletes = results['position_groups'][group_name]
+
+        if not group_athletes:
+            continue
+
+        # Get position list for this group
+        position_list = ', '.join(POSITION_GROUPS[group_name])
+
+        html += f"""
+        <div class="position-group">
+            <div class="position-header">
+                <h3>{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged</h3>
+            </div>
+            <div class="position-body">
+"""
+
+        for athlete in group_athletes:
+            html += f"""                <div class="athlete-row">
+                    <div class="athlete-info">
+                        <div class="athlete-name">{athlete['name']}</div>
+                        <div class="athlete-position">{athlete['position']}</div>
+                    </div>
+                    <div class="category-badges">
+"""
+
+            for cat in athlete['flagged_categories']:
+                html += f"""                        <div class="category-badge {cat['severity']}">
+                            <span class="emoji">{cat['emoji']}</span>
+                            <span class="category-num">{cat['cat_num']}.</span>
+                            <span class="category-name">{cat['name']}</span>
+                        </div>
+"""
+
+            html += """                    </div>
+                </div>
+"""
+
+        html += """            </div>
+        </div>
 """
 
     html += f"""
@@ -662,6 +720,27 @@ def generate_text_report(results, df, team_name, training_phase):
             category_counts[cat_num] += 1
     categories_flagged = len(category_counts)
 
+    # Calculate stats per position group
+    position_group_stats = {}
+    for group_name in ['Skill', 'Mid', 'Big']:
+        group_positions = POSITION_GROUPS[group_name]
+        total_in_group = df[df['Position'].isin(group_positions)]['Athlete_Name'].nunique()
+        flagged_in_group = len(results['position_groups'][group_name])
+
+        group_category_counts = {}
+        for athlete in results['position_groups'][group_name]:
+            for cat in athlete['flagged_categories']:
+                cat_num = cat['cat_num']
+                if cat_num not in group_category_counts:
+                    group_category_counts[cat_num] = 0
+                group_category_counts[cat_num] += 1
+
+        position_group_stats[group_name] = {
+            'total': total_in_group,
+            'flagged': flagged_in_group,
+            'category_counts': group_category_counts
+        }
+
     report = []
     report.append("="*80)
     report.append("FORCE PLATE TRAINING REPORT".center(80))
@@ -672,51 +751,35 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append(f"Data Window: {df['Date'].min().date()} to {df['Date'].max().date()}")
     report.append("-"*80)
 
-    report.append(f"\nSUMMARY:")
-    report.append(f"  Total Athletes: {total_athletes}")
-    report.append(f"  Athletes Flagged: {total_flagged} ({total_flagged/total_athletes*100:.0f}%)")
-    report.append(f"  Categories Flagged: {categories_flagged}")
-    report.append("")
+    report.append("\n" + "="*80)
+    report.append("EXECUTIVE SUMMARIES BY POSITION GROUP".center(80))
+    report.append("="*80)
 
-    report.append("\nATHLETES PER CATEGORY:")
-    for cat_num in sorted(category_counts.keys()):
-        count = category_counts[cat_num]
-        cat_name = DECISION_RULES[cat_num]['name']
-        report.append(f"  • Cat {cat_num} ({cat_name}): {count} athletes")
-    report.append("")
+    for group_name in ['Skill', 'Mid', 'Big']:
+        stats = position_group_stats[group_name]
+        position_list = ', '.join(POSITION_GROUPS[group_name])
+        pct = (stats['flagged'] / stats['total'] * 100) if stats['total'] > 0 else 0
 
-    report.append("\nDEVELOPMENTAL CATEGORY LEGEND:")
+        report.append(f"\n{group_name.upper()} POSITIONS ({position_list})")
+        report.append("-"*80)
+        report.append(f"  Total Athletes: {stats['total']}")
+        report.append(f"  Athletes Flagged: {stats['flagged']} ({pct:.0f}%)")
+
+        if stats['category_counts']:
+            report.append(f"\n  Categories Flagged:")
+            for cat_num in sorted(stats['category_counts'].keys()):
+                count = stats['category_counts'][cat_num]
+                report.append(f"    • Cat {cat_num}: {count} athletes")
+        report.append("")
+
+    report.append("\n" + "="*80)
+    report.append("DEVELOPMENTAL CATEGORY LEGEND".center(80))
+    report.append("="*80)
     for cat_num, rule in sorted(DECISION_RULES.items()):
         report.append(f"  {cat_num}. {rule['name']}")
     report.append("")
 
-    # Report by position groups
-    for group_name in ['Skill', 'Mid', 'Big']:
-        group_athletes = results['position_groups'][group_name]
-
-        if not group_athletes:
-            continue
-
-        position_list = ', '.join(POSITION_GROUPS[group_name])
-
-        report.append("\n" + "="*80)
-        report.append(f"{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged")
-        report.append("="*80)
-
-        for athlete in group_athletes:
-            report.append(f"\n  {athlete['name']} ({athlete['position']})")
-
-            # List flagged categories
-            cat_strs = []
-            for cat in athlete['flagged_categories']:
-                cat_strs.append(f"{cat['emoji']} {cat['cat_num']}. {cat['name']} ({cat['severity'].title()})")
-
-            for cat_str in cat_strs:
-                report.append(f"    {cat_str}")
-
-        report.append("")
-
-    # Add training recommendations
+    # Add training recommendations (before athlete lists)
     report.append("\n" + "="*80)
     report.append("TRAINING RECOMMENDATIONS BY CATEGORY".center(80))
     report.append("="*80)
@@ -738,6 +801,35 @@ def generate_text_report(results, df, team_name, training_phase):
 
         report.append(f"\nINTERPRETATION: {rule['interpretation']}")
         report.append(f"\nEXECUTION NOTE: {rule['execution_note']}")
+        report.append("")
+
+    # Add flagged athletes section (after recommendations)
+    report.append("\n" + "="*80)
+    report.append("FLAGGED ATHLETES BY POSITION".center(80))
+    report.append("="*80)
+
+    for group_name in ['Skill', 'Mid', 'Big']:
+        group_athletes = results['position_groups'][group_name]
+
+        if not group_athletes:
+            continue
+
+        position_list = ', '.join(POSITION_GROUPS[group_name])
+
+        report.append(f"\n{group_name.upper()} POSITIONS ({position_list}) - {len(group_athletes)} Athletes Flagged")
+        report.append("-"*80)
+
+        for athlete in group_athletes:
+            report.append(f"\n  {athlete['name']} ({athlete['position']})")
+
+            # List flagged categories
+            cat_strs = []
+            for cat in athlete['flagged_categories']:
+                cat_strs.append(f"{cat['emoji']} {cat['cat_num']}. {cat['name']} ({cat['severity'].title()})")
+
+            for cat_str in cat_strs:
+                report.append(f"    {cat_str}")
+
         report.append("")
 
     report.append("\n" + "="*80)
