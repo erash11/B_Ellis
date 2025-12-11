@@ -37,7 +37,7 @@ DECISION_RULES = {
     1: {
         'name': 'MAXIMAL STRENGTH CAPACITY',
         'short_name': 'Maximal Strength',
-        'display_order': 7,
+        'display_order': 9,
         'trend_desc': 'IMTP Peak Force and Net Peak Vertical Force declining',
         'metrics': ['IMTP_Peak_Force', 'IMTP_Net_Peak_Force'],
         'trend': 'decrease',
@@ -58,7 +58,7 @@ DECISION_RULES = {
     2: {
         'name': 'EXPLOSIVE STRENGTH / RFD',
         'short_name': 'Explosive/RFD',
-        'display_order': 5,
+        'display_order': 7,
         'trend_desc': 'Early-phase RFD (50-200ms) declining',
         'metrics': ['IMTP_Force_50ms', 'IMTP_Force_100ms', 'IMTP_Force_200ms'],
         'trend': 'decrease',
@@ -78,7 +78,7 @@ DECISION_RULES = {
     3: {
         'name': 'POWER OUTPUT',
         'short_name': 'Power Output',
-        'display_order': 6,
+        'display_order': 8,
         'trend_desc': 'Peak Power declining',
         'metrics': ['CMJ_Peak_Power'],
         'trend': 'decrease',
@@ -98,7 +98,7 @@ DECISION_RULES = {
     4: {
         'name': 'SSC EFFICIENCY',
         'short_name': 'SSC Efficiency',
-        'display_order': 4,
+        'display_order': 6,
         'trend_desc': 'RSI-modified and Eccentric Braking RFD declining',
         'metrics': ['CMJ_RSI_modified', 'CMJ_Eccentric_Braking_RFD'],
         'trend': 'decrease',
@@ -117,7 +117,7 @@ DECISION_RULES = {
     5: {
         'name': 'ECCENTRIC CONTROL & BRAKING',
         'short_name': 'Eccentric Control',
-        'display_order': 3,
+        'display_order': 5,
         'trend_desc': 'Eccentric braking force declining',
         'metrics': ['CMJ_Eccentric_Mean_Braking_Force'],
         'trend': 'decrease',
@@ -137,7 +137,7 @@ DECISION_RULES = {
     6: {
         'name': 'TECHNICAL / COORDINATION',
         'short_name': 'Technical',
-        'display_order': 1,
+        'display_order': 3,
         'trend_desc': 'Contraction Time and Time to Peak Force increasing',
         'metrics': ['CMJ_Contraction_Time', 'IMTP_Time_to_Peak_Force'],
         'trend': 'increase',
@@ -158,7 +158,7 @@ DECISION_RULES = {
     7: {
         'name': 'ASYMMETRY / LIMB IMBALANCE',
         'short_name': 'Asymmetry',
-        'display_order': 2,
+        'display_order': 4,
         'trend_desc': 'L-R Force Asymmetry > 10%',
         'metrics': ['IMTP_Asymmetry'],
         'trend': 'absolute',
@@ -180,7 +180,7 @@ DECISION_RULES = {
     8: {
         'name': 'MOVEMENT STRATEGY SHIFT',
         'short_name': 'Movement Strategy',
-        'display_order': 8,
+        'display_order': 1,
         'trend_desc': 'Jump strategy and movement efficiency declining',
         'metrics': ['CMJ_Contraction_Time', 'CMJ_Jump_Height'],
         'trend': 'increase',
@@ -201,7 +201,7 @@ DECISION_RULES = {
     9: {
         'name': 'REACTIVE FATIGUE STATE',
         'short_name': 'Reactive Fatigue',
-        'display_order': 9,
+        'display_order': 2,
         'trend_desc': 'Reactive strength and jump performance declining',
         'metrics': ['CMJ_RSI_modified', 'CMJ_Jump_Height'],
         'trend': 'decrease',
