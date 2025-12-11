@@ -37,6 +37,7 @@ DECISION_RULES = {
     1: {
         'name': 'MAXIMAL STRENGTH CAPACITY',
         'short_name': 'Maximal Strength',
+        'display_order': 7,
         'trend_desc': 'IMTP Peak Force and Net Peak Vertical Force declining',
         'metrics': ['IMTP_Peak_Force', 'IMTP_Net_Peak_Force'],
         'trend': 'decrease',
@@ -57,6 +58,7 @@ DECISION_RULES = {
     2: {
         'name': 'EXPLOSIVE STRENGTH / RFD',
         'short_name': 'Explosive/RFD',
+        'display_order': 5,
         'trend_desc': 'Early-phase RFD (50-200ms) declining',
         'metrics': ['IMTP_Force_50ms', 'IMTP_Force_100ms', 'IMTP_Force_200ms'],
         'trend': 'decrease',
@@ -76,6 +78,7 @@ DECISION_RULES = {
     3: {
         'name': 'POWER OUTPUT',
         'short_name': 'Power Output',
+        'display_order': 6,
         'trend_desc': 'Peak Power declining',
         'metrics': ['CMJ_Peak_Power'],
         'trend': 'decrease',
@@ -95,6 +98,7 @@ DECISION_RULES = {
     4: {
         'name': 'SSC EFFICIENCY',
         'short_name': 'SSC Efficiency',
+        'display_order': 4,
         'trend_desc': 'RSI-modified and Eccentric Braking RFD declining',
         'metrics': ['CMJ_RSI_modified', 'CMJ_Eccentric_Braking_RFD'],
         'trend': 'decrease',
@@ -113,6 +117,7 @@ DECISION_RULES = {
     5: {
         'name': 'ECCENTRIC CONTROL & BRAKING',
         'short_name': 'Eccentric Control',
+        'display_order': 3,
         'trend_desc': 'Eccentric braking force declining',
         'metrics': ['CMJ_Eccentric_Mean_Braking_Force'],
         'trend': 'decrease',
@@ -132,6 +137,7 @@ DECISION_RULES = {
     6: {
         'name': 'TECHNICAL / COORDINATION',
         'short_name': 'Technical',
+        'display_order': 1,
         'trend_desc': 'Contraction Time and Time to Peak Force increasing',
         'metrics': ['CMJ_Contraction_Time', 'IMTP_Time_to_Peak_Force'],
         'trend': 'increase',
@@ -152,6 +158,7 @@ DECISION_RULES = {
     7: {
         'name': 'ASYMMETRY / LIMB IMBALANCE',
         'short_name': 'Asymmetry',
+        'display_order': 2,
         'trend_desc': 'L-R Force Asymmetry > 10%',
         'metrics': ['IMTP_Asymmetry'],
         'trend': 'absolute',
@@ -169,6 +176,48 @@ DECISION_RULES = {
         ],
         'interpretation': 'Limb imbalances detected. Address through unilateral training to reduce injury risk.',
         'execution_note': 'If squats are programmed, replace with split squats. Address the imbalance through exercise selection.'
+    },
+    8: {
+        'name': 'MOVEMENT STRATEGY SHIFT',
+        'short_name': 'Movement Strategy',
+        'display_order': 8,
+        'trend_desc': 'Jump strategy and movement efficiency declining',
+        'metrics': ['CMJ_Contraction_Time', 'CMJ_Jump_Height'],
+        'trend': 'increase',
+        'wr_suggestions': [
+            'Reduce training volume and intensity',
+            'Focus on movement quality with lower loads',
+            'Implement deload week',
+            'Extended rest between sessions'
+        ],
+        'field_suggestions': [
+            'Reduce practice volume',
+            'Focus on skill work over conditioning',
+            'Monitor practice intensity'
+        ],
+        'interpretation': 'Movement strategy changes indicate accumulating fatigue. Reduce training stress and prioritize recovery.',
+        'execution_note': 'This is a fatigue indicator. Pull back on volume and intensity. Consider implementing a deload or additional rest day.'
+    },
+    9: {
+        'name': 'REACTIVE FATIGUE STATE',
+        'short_name': 'Reactive Fatigue',
+        'display_order': 9,
+        'trend_desc': 'Reactive strength and jump performance declining',
+        'metrics': ['CMJ_RSI_modified', 'CMJ_Jump_Height'],
+        'trend': 'decrease',
+        'wr_suggestions': [
+            'Reduce plyometric volume',
+            'Decrease training intensity',
+            'Implement active recovery sessions',
+            'Focus on sleep and nutrition'
+        ],
+        'field_suggestions': [
+            'Reduce high-intensity running',
+            'Limit change-of-direction drills',
+            'Implement active recovery days'
+        ],
+        'interpretation': 'Systemic fatigue affecting reactive abilities. Reduce training stress and prioritize recovery protocols.',
+        'execution_note': 'Red flag for overtraining. Reduce all high-intensity work. Focus on recovery modalities and sleep quality.'
     }
 }
 
@@ -384,8 +433,8 @@ def categorize_athletes(df):
 
         # Only add athlete if they have flagged categories
         if flagged_categories:
-            # Sort categories by severity (most severe first)
-            flagged_categories.sort(key=lambda x: {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']])
+            # Sort categories by display order, then by severity
+            flagged_categories.sort(key=lambda x: (DECISION_RULES[x['cat_num']]['display_order'], {'critical': 0, 'warning': 1, 'caution': 2}[x['severity']]))
 
             athlete_results[athlete] = {
                 'position': position,
@@ -559,8 +608,8 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
             <div class="legend-grid">
 """
 
-    # Add category legend
-    for cat_num, rule in sorted(DECISION_RULES.items()):
+    # Add category legend sorted by display order
+    for cat_num, rule in sorted(DECISION_RULES.items(), key=lambda x: x[1]['display_order']):
         html += f'                <div class="legend-item"><span class="legend-num">{cat_num}.</span> {rule["name"]}</div>\n'
 
     html += """            </div>
@@ -573,7 +622,9 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
             <h2 class="recommendations-title">TRAINING RECOMMENDATIONS BY CATEGORY</h2>
 """
 
-    for cat_num in sorted(category_counts.keys()):
+    # Sort by display order
+    sorted_categories = sorted(category_counts.keys(), key=lambda x: DECISION_RULES[x]['display_order'])
+    for cat_num in sorted_categories:
         rule = DECISION_RULES[cat_num]
         count = category_counts[cat_num]
 
@@ -654,7 +705,8 @@ def generate_html_report(results, df, team_name, training_phase, next_phase):
             html += """                <div class="position-summary-categories">
                     <strong>Categories Flagged in this Group:</strong>
 """
-            for cat_num in sorted(stats['category_counts'].keys()):
+            # Sort by display order
+            for cat_num in sorted(stats['category_counts'].keys(), key=lambda x: DECISION_RULES[x]['display_order']):
                 count = stats['category_counts'][cat_num]
                 cat_name = DECISION_RULES[cat_num]['short_name']
                 html += f"""                    <div class="position-summary-cat-item">• Cat {cat_num} ({cat_name}): {count} athletes</div>
@@ -752,7 +804,8 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append("\n" + "="*80)
     report.append("DEVELOPMENTAL CATEGORY LEGEND".center(80))
     report.append("="*80)
-    for cat_num, rule in sorted(DECISION_RULES.items()):
+    # Sort by display order
+    for cat_num, rule in sorted(DECISION_RULES.items(), key=lambda x: x[1]['display_order']):
         report.append(f"  {cat_num}. {rule['name']}")
     report.append("")
 
@@ -761,7 +814,9 @@ def generate_text_report(results, df, team_name, training_phase):
     report.append("TRAINING RECOMMENDATIONS BY CATEGORY".center(80))
     report.append("="*80)
 
-    for cat_num in sorted(category_counts.keys()):
+    # Sort by display order
+    sorted_categories = sorted(category_counts.keys(), key=lambda x: DECISION_RULES[x]['display_order'])
+    for cat_num in sorted_categories:
         rule = DECISION_RULES[cat_num]
         count = category_counts[cat_num]
 
@@ -805,7 +860,8 @@ def generate_text_report(results, df, team_name, training_phase):
 
         if stats['category_counts']:
             report.append(f"\n  Categories Flagged in this Group:")
-            for cat_num in sorted(stats['category_counts'].keys()):
+            # Sort by display order
+            for cat_num in sorted(stats['category_counts'].keys(), key=lambda x: DECISION_RULES[x]['display_order']):
                 count = stats['category_counts'][cat_num]
                 cat_name = DECISION_RULES[cat_num]['short_name']
                 report.append(f"    • Cat {cat_num} ({cat_name}): {count} athletes")
