@@ -35,84 +35,89 @@ st.set_page_config(
 
 DECISION_RULES = {
     1: {
-        'name': 'MAXIMAL STRENGTH CAPACITY',
-        'short_name': 'Maximal Strength',
-        'display_order': 9,
-        'trend_desc': 'IMTP Peak Force and Net Peak Vertical Force declining',
-        'metrics': ['IMTP_Peak_Force', 'IMTP_Net_Peak_Force'],
-        'trend': 'decrease',
+        'name': 'MOVEMENT STRATEGY SHIFT',
+        'short_name': 'Movement Strategy',
+        'display_order': 1,
+        'trend_desc': 'Jump strategy and movement efficiency declining',
+        'metrics': ['CMJ_Contraction_Time', 'CMJ_Jump_Height'],
+        'trend': 'increase',
         'wr_suggestions': [
-            'Heavy isometrics with 3-5 second holds',
-            'Cluster sets (≥80% 1RM) - 3 reps, 20s rest, repeat 3×',
-            'Wave loading (vary intensity within session)',
-            'Extend rest periods to 4-5 minutes between sets'
+            'Reduce training volume and intensity',
+            'Focus on movement quality with lower loads',
+            'Implement deload week',
+            'Extended rest between sessions'
         ],
         'field_suggestions': [
-            'Resisted sprints (50-60% vdec)',
-            'Heavy sled pushes',
-            'Focus on max force production over speed'
+            'Reduce practice volume',
+            'Focus on skill work over conditioning',
+            'Monitor practice intensity'
         ],
-        'interpretation': 'Maximal strength capacity declining. Consider making cluster sets and extended rest a phase emphasis for these athletes.',
-        'execution_note': 'Still do your planned exercises (trap bar, safety bar, whatever), but execute them with longer rest, cluster structure, or add isometric holds.'
+        'interpretation': 'Movement strategy changes indicate accumulating fatigue. Reduce training stress and prioritize recovery.',
+        'execution_note': 'This is a fatigue indicator. Pull back on volume and intensity. Consider implementing a deload or additional rest day.'
     },
     2: {
-        'name': 'EXPLOSIVE STRENGTH / RFD',
-        'short_name': 'Explosive/RFD',
-        'display_order': 7,
-        'trend_desc': 'Early-phase RFD (50-200ms) declining',
-        'metrics': ['IMTP_Force_50ms', 'IMTP_Force_100ms', 'IMTP_Force_200ms'],
+        'name': 'REACTIVE FATIGUE STATE',
+        'short_name': 'Reactive Fatigue',
+        'display_order': 2,
+        'trend_desc': 'Reactive strength and jump performance declining',
+        'metrics': ['CMJ_RSI_modified', 'CMJ_Jump_Height'],
         'trend': 'decrease',
         'wr_suggestions': [
-            'Contrast/complex training (heavy → explosive superset)',
-            'Olympic lift variations (60-70% 1RM)',
-            'Accommodating resistance with explosive intent',
-            'Example: Trap bar (heavy) → Box jumps (explosive)'
+            'Reduce plyometric volume',
+            'Decrease training intensity',
+            'Implement active recovery sessions',
+            'Focus on sleep and nutrition'
         ],
         'field_suggestions': [
-            'Resisted sprints (10-30% vdec)',
-            'Contrast sprints (resisted → unresisted)'
+            'Reduce high-intensity running',
+            'Limit change-of-direction drills',
+            'Implement active recovery days'
         ],
-        'interpretation': 'Rate of force development declining. Consider contrast training emphasis in next phase for these athletes.',
-        'execution_note': 'If you planned trap bar deadlifts, pair them with vertical jumps in a superset. Still the same movements, just executed as contrasts.'
+        'interpretation': 'Systemic fatigue affecting reactive abilities. Reduce training stress and prioritize recovery protocols.',
+        'execution_note': 'Red flag for overtraining. Reduce all high-intensity work. Focus on recovery modalities and sleep quality.'
     },
     3: {
-        'name': 'POWER OUTPUT',
-        'short_name': 'Power Output',
-        'display_order': 8,
-        'trend_desc': 'Peak Power declining',
-        'metrics': ['CMJ_Peak_Power'],
-        'trend': 'decrease',
+        'name': 'TECHNICAL / COORDINATION',
+        'short_name': 'Technical',
+        'display_order': 3,
+        'trend_desc': 'Contraction Time and Time to Peak Force increasing',
+        'metrics': ['CMJ_Contraction_Time', 'IMTP_Time_to_Peak_Force'],
+        'trend': 'increase',
         'wr_suggestions': [
-            'Contrast/complex training',
-            'Cluster sets (70-80% 1RM)',
-            'Olympic lift variations',
-            'Ballistic movements emphasis'
+            'Wave loading (vary intensity within session)',
+            'Cluster sets',
+            'Rhythmic tempo work (consistent cadence)',
+            'Motor control focus'
         ],
         'field_suggestions': [
-            'Contrast/complex training',
-            'Resisted sprints (30-50% vdec)'
+            'Movement skill retraining',
+            'Motor control drills',
+            'Technical sprint work (not conditioning)'
         ],
-        'interpretation': 'Power output declining. Focus on moving submaximal loads with maximal intent.',
-        'execution_note': 'Focus on moving submaximal loads with maximal intent. Use cluster sets for Olympic lifts.'
+        'interpretation': 'Movement efficiency declining. Reduce intensity and focus on movement quality.',
+        'execution_note': 'Think movement quality over load. Use wave loading to get quality reps at different intensities.'
     },
     4: {
-        'name': 'SSC EFFICIENCY',
-        'short_name': 'SSC Efficiency',
-        'display_order': 6,
-        'trend_desc': 'RSI-modified and Eccentric Braking RFD declining',
-        'metrics': ['CMJ_RSI_modified', 'CMJ_Eccentric_Braking_RFD'],
-        'trend': 'decrease',
+        'name': 'ASYMMETRY / LIMB IMBALANCE',
+        'short_name': 'Asymmetry',
+        'display_order': 4,
+        'trend_desc': 'L-R Force Asymmetry > 10%',
+        'metrics': ['IMTP_Asymmetry'],
+        'trend': 'absolute',
+        'threshold': 10,
         'wr_suggestions': [
-            'Reactive/ballistic techniques',
-            'Drop jumps, altitude landings',
-            'Reactive medicine ball work'
+            'Single-leg/unilateral strength work',
+            'Split-stance patterns (split squats, SL RDLs)',
+            'Unilateral jumps and landings',
+            'Offset loading'
         ],
         'field_suggestions': [
-            'Plyometric training (pogos, bounds, hurdle hops)',
-            'Reactive agility drills'
+            'Unilateral jumps',
+            'Single-leg bounds',
+            'Asymmetrical agility work'
         ],
-        'interpretation': 'Stretch-shortening cycle efficiency compromised. Emphasize quick ground contacts and reactive training.',
-        'execution_note': 'Emphasize quick ground contacts. Think "hot ground" mentality rather than max height.'
+        'interpretation': 'Limb imbalances detected. Address through unilateral training to reduce injury risk.',
+        'execution_note': 'If squats are programmed, replace with split squats. Address the imbalance through exercise selection.'
     },
     5: {
         'name': 'ECCENTRIC CONTROL & BRAKING',
@@ -135,89 +140,84 @@ DECISION_RULES = {
         'execution_note': 'If doing safety bar squats, add a 5-count down. Or use reverse bands. We\'ve done this before.'
     },
     6: {
-        'name': 'TECHNICAL / COORDINATION',
-        'short_name': 'Technical',
-        'display_order': 3,
-        'trend_desc': 'Contraction Time and Time to Peak Force increasing',
-        'metrics': ['CMJ_Contraction_Time', 'IMTP_Time_to_Peak_Force'],
-        'trend': 'increase',
-        'wr_suggestions': [
-            'Wave loading (vary intensity within session)',
-            'Cluster sets',
-            'Rhythmic tempo work (consistent cadence)',
-            'Motor control focus'
-        ],
-        'field_suggestions': [
-            'Movement skill retraining',
-            'Motor control drills',
-            'Technical sprint work (not conditioning)'
-        ],
-        'interpretation': 'Movement efficiency declining. Reduce intensity and focus on movement quality.',
-        'execution_note': 'Think movement quality over load. Use wave loading to get quality reps at different intensities.'
-    },
-    7: {
-        'name': 'ASYMMETRY / LIMB IMBALANCE',
-        'short_name': 'Asymmetry',
-        'display_order': 4,
-        'trend_desc': 'L-R Force Asymmetry > 10%',
-        'metrics': ['IMTP_Asymmetry'],
-        'trend': 'absolute',
-        'threshold': 10,
-        'wr_suggestions': [
-            'Single-leg/unilateral strength work',
-            'Split-stance patterns (split squats, SL RDLs)',
-            'Unilateral jumps and landings',
-            'Offset loading'
-        ],
-        'field_suggestions': [
-            'Unilateral jumps',
-            'Single-leg bounds',
-            'Asymmetrical agility work'
-        ],
-        'interpretation': 'Limb imbalances detected. Address through unilateral training to reduce injury risk.',
-        'execution_note': 'If squats are programmed, replace with split squats. Address the imbalance through exercise selection.'
-    },
-    8: {
-        'name': 'MOVEMENT STRATEGY SHIFT',
-        'short_name': 'Movement Strategy',
-        'display_order': 1,
-        'trend_desc': 'Jump strategy and movement efficiency declining',
-        'metrics': ['CMJ_Contraction_Time', 'CMJ_Jump_Height'],
-        'trend': 'increase',
-        'wr_suggestions': [
-            'Reduce training volume and intensity',
-            'Focus on movement quality with lower loads',
-            'Implement deload week',
-            'Extended rest between sessions'
-        ],
-        'field_suggestions': [
-            'Reduce practice volume',
-            'Focus on skill work over conditioning',
-            'Monitor practice intensity'
-        ],
-        'interpretation': 'Movement strategy changes indicate accumulating fatigue. Reduce training stress and prioritize recovery.',
-        'execution_note': 'This is a fatigue indicator. Pull back on volume and intensity. Consider implementing a deload or additional rest day.'
-    },
-    9: {
-        'name': 'REACTIVE FATIGUE STATE',
-        'short_name': 'Reactive Fatigue',
-        'display_order': 2,
-        'trend_desc': 'Reactive strength and jump performance declining',
-        'metrics': ['CMJ_RSI_modified', 'CMJ_Jump_Height'],
+        'name': 'SSC EFFICIENCY',
+        'short_name': 'SSC Efficiency',
+        'display_order': 6,
+        'trend_desc': 'RSI-modified and Eccentric Braking RFD declining',
+        'metrics': ['CMJ_RSI_modified', 'CMJ_Eccentric_Braking_RFD'],
         'trend': 'decrease',
         'wr_suggestions': [
-            'Reduce plyometric volume',
-            'Decrease training intensity',
-            'Implement active recovery sessions',
-            'Focus on sleep and nutrition'
+            'Reactive/ballistic techniques',
+            'Drop jumps, altitude landings',
+            'Reactive medicine ball work'
         ],
         'field_suggestions': [
-            'Reduce high-intensity running',
-            'Limit change-of-direction drills',
-            'Implement active recovery days'
+            'Plyometric training (pogos, bounds, hurdle hops)',
+            'Reactive agility drills'
         ],
-        'interpretation': 'Systemic fatigue affecting reactive abilities. Reduce training stress and prioritize recovery protocols.',
-        'execution_note': 'Red flag for overtraining. Reduce all high-intensity work. Focus on recovery modalities and sleep quality.'
+        'interpretation': 'Stretch-shortening cycle efficiency compromised. Emphasize quick ground contacts and reactive training.',
+        'execution_note': 'Emphasize quick ground contacts. Think "hot ground" mentality rather than max height.'
+    },
+    7: {
+        'name': 'EXPLOSIVE STRENGTH / RFD',
+        'short_name': 'Explosive/RFD',
+        'display_order': 7,
+        'trend_desc': 'Early-phase RFD (50-200ms) declining',
+        'metrics': ['IMTP_Force_50ms', 'IMTP_Force_100ms', 'IMTP_Force_200ms'],
+        'trend': 'decrease',
+        'wr_suggestions': [
+            'Contrast/complex training (heavy → explosive superset)',
+            'Olympic lift variations (60-70% 1RM)',
+            'Accommodating resistance with explosive intent',
+            'Example: Trap bar (heavy) → Box jumps (explosive)'
+        ],
+        'field_suggestions': [
+            'Resisted sprints (10-30% vdec)',
+            'Contrast sprints (resisted → unresisted)'
+        ],
+        'interpretation': 'Rate of force development declining. Consider contrast training emphasis in next phase for these athletes.',
+        'execution_note': 'If you planned trap bar deadlifts, pair them with vertical jumps in a superset. Still the same movements, just executed as contrasts.'
+    },
+    8: {
+        'name': 'POWER OUTPUT',
+        'short_name': 'Power Output',
+        'display_order': 8,
+        'trend_desc': 'Peak Power declining',
+        'metrics': ['CMJ_Peak_Power'],
+        'trend': 'decrease',
+        'wr_suggestions': [
+            'Contrast/complex training',
+            'Cluster sets (70-80% 1RM)',
+            'Olympic lift variations',
+            'Ballistic movements emphasis'
+        ],
+        'field_suggestions': [
+            'Contrast/complex training',
+            'Resisted sprints (30-50% vdec)'
+        ],
+        'interpretation': 'Power output declining. Focus on moving submaximal loads with maximal intent.',
+        'execution_note': 'Focus on moving submaximal loads with maximal intent. Use cluster sets for Olympic lifts.'
+    },
+    9: {
+        'name': 'MAXIMAL STRENGTH CAPACITY',
+        'short_name': 'Maximal Strength',
+        'display_order': 9,
+        'trend_desc': 'IMTP Peak Force and Net Peak Vertical Force declining',
+        'metrics': ['IMTP_Peak_Force', 'IMTP_Net_Peak_Force'],
+        'trend': 'decrease',
+        'wr_suggestions': [
+            'Heavy isometrics with 3-5 second holds',
+            'Cluster sets (≥80% 1RM) - 3 reps, 20s rest, repeat 3×',
+            'Wave loading (vary intensity within session)',
+            'Extend rest periods to 4-5 minutes between sets'
+        ],
+        'field_suggestions': [
+            'Resisted sprints (50-60% vdec)',
+            'Heavy sled pushes',
+            'Focus on max force production over speed'
+        ],
+        'interpretation': 'Maximal strength capacity declining. Consider making cluster sets and extended rest a phase emphasis for these athletes.',
+        'execution_note': 'Still do your planned exercises (trap bar, safety bar, whatever), but execute them with longer rest, cluster structure, or add isometric holds.'
     }
 }
 
